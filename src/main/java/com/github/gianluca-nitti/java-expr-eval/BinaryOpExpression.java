@@ -10,10 +10,14 @@ public final class BinaryOpExpression extends Expression{
 
   private static final Character[] allowedOperators = new Character[]{'+', '-', '*', '/', '%', '^'};
 
+  public static boolean isAllowedOperator(Character c){
+    return Arrays.asList(allowedOperators).contains(c);
+  }
+
   public BinaryOpExpression(Expression left, char op, Expression right) throws InvalidOperatorException{
     this.left = left;
     this.right = right;
-    if(!Arrays.asList(allowedOperators).contains(op))
+    if(!isAllowedOperator(op))
       throw new InvalidOperatorException(op);
     this.op = op;
   }
