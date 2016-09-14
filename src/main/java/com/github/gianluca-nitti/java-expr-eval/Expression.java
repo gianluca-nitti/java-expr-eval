@@ -21,7 +21,8 @@ public abstract class Expression{
       }
       if(c == '('){
         int closedIndex = findCloseParenthesis(expr, i);
-        subExpressions.addItem(parseRange(expr, i + 1, closedIndex - 1));
+        subExpressions.addItem(parseRange(expr, i + 1, closedIndex));
+        i = closedIndex;
       }else if(BinaryOpExpression.isAllowedOperator(c)){
         if(currentNumber.length() != 0){
           subExpressions.addItem(new ConstExpression(Double.parseDouble(currentNumber)));

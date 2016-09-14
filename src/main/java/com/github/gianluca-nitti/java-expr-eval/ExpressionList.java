@@ -39,13 +39,16 @@ public final class ExpressionList{
 
   private void evalOperators(Character ... ops) throws InvalidOperatorException{
     List<Character> opsList = Arrays.asList(ops);
-    for(int i = 0; i < operators.size(); i++){
+    int i = 0;
+    while(i < operators.size()){
       Character op = operators.get(i);
       if(opsList.contains(op)){
         operators.remove(i);
         Expression left = items.remove(i);
         Expression right = items.remove(i);
         items.add(i, new BinaryOpExpression(left, op, right));
+      }else{
+        i++;
       }
     }
   }
