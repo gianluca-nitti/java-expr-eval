@@ -15,13 +15,7 @@ public final class ExpressionList{
   public ExpressionList(){
     items = new ArrayList<Expression>();
     operators = new ArrayList<Character>();
-    //items.add(first);
   }
-
-  /*public void add(Character op, Expression exp){
-    items.add(exp);
-    operators.add(op);
-  }*/
 
   public void addItem(Expression item) throws UnexpectedTokenException{
     if(expectOperator)
