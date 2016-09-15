@@ -1,6 +1,7 @@
 package com.github.gianlucanitti.javaexpreval;
 
 import java.util.Arrays;
+import java.io.PrintWriter;
 
 public final class BinaryOpExpression extends Expression{
 
@@ -23,9 +24,9 @@ public final class BinaryOpExpression extends Expression{
   }
 
   @Override
-  public double eval(){
-    double a = left.eval();
-    double b = right.eval();
+  protected double evalExpr(PrintWriter logWriter){
+    double a = left.eval(logWriter);
+    double b = right.eval(logWriter);
     double result = 0;
     switch(op){
       case '+': result = a + b; break;
@@ -36,5 +37,10 @@ public final class BinaryOpExpression extends Expression{
       case '^': result = Math.pow(a, b); break;
     }
     return result;
+  }
+
+  @Override
+  public String toString(){
+    return "(" + left.toString() + op + right.toString() + ")";
   }
 }
