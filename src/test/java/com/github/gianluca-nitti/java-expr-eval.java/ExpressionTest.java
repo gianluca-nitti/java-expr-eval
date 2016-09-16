@@ -8,14 +8,14 @@ public class ExpressionTest extends TestCase{
     try{
       //The following line a ugly hack to make comparisons between doubles with the loss of precision that floating point math has.
       //Future versions of the library will probably be based on a better math system with arbitrary precision (Bigdecimal or some external library).
-      assertEquals(expected, (double)Math.round(Expression.parse(expr).eval() * 10) / 10);
+      assertEquals(expected, (double)Math.round(Expression.parse(expr).eval() * 1000) / 1000);
     }catch(Exception ex){
       fail(ex.getMessage());
     }
   }
 
   public void testParse(){
-    assertExprValue(-123.4, "(50+2-(3*45.8))+4-6*7+0");
+    assertExprValue(-1879080.904, "((50+2-(3*45.8))+4-6*7+0)^3");
   }
 
 }

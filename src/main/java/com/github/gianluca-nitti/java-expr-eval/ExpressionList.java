@@ -48,6 +48,7 @@ public final class ExpressionList{
   }
 
   public Expression simplify() throws InvalidOperatorException{
+    evalOperators('^');
     evalOperators('*', '/');
     evalOperators('+', '-');
     if(items.size() != 1 || operators.size() != 0) throw new InvalidOperatorException(operators.get(0)); //TODO: fix
