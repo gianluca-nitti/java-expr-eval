@@ -4,14 +4,18 @@ import junit.framework.TestCase;
 
 public class ExpressionTest extends TestCase{
 
-  public void testParse(){
+  private void assertExprValue(double expected, String expr){
     try{
-      Expression exp = Expression.parse("(50+2-(3*45.8))+4-6*7+0");
-      double val = exp.eval();
-      assertEquals(-123.4, (double)Math.round(val * 10) / 10); //TODO: this probably isn't the right way of testing it
+      //The following line a ugly hack to make comparisons between doubles with the loss of precision that floating point math has.
+      //Future versions of the library will probably be based on a better math system with arbitrary precision (Bigdecimal or some external library).
+      assertEquals(expected, (double)Math.round(Expression.parse(expr).eval() * 10) / 10);
     }catch(Exception ex){
       fail(ex.getMessage());
     }
+  }
+
+  public void testParse(){
+    assertExprValue(-123.4, "(50+2-(3*45.8))+4-6*7+0");
   }
 
 }
