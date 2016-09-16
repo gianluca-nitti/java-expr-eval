@@ -2,6 +2,9 @@ package com.github.gianlucanitti.javaexpreval;
 
 import java.io.PrintWriter;
 
+/**
+ * An expression representing a constant value.
+ */
 public final class ConstExpression extends Expression{
 
   private double value;

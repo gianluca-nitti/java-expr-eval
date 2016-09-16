@@ -5,6 +5,9 @@ import java.io.PrintWriter;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
+/**
+ * Represents a generic arithmetical expression.
+ */
 public abstract class Expression{
 
   private static class NullOutputStream extends OutputStream{

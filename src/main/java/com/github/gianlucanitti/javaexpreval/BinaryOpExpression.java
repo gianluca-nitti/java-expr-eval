@@ -3,6 +3,9 @@ package com.github.gianlucanitti.javaexpreval;
 import java.util.Arrays;
 import java.io.PrintWriter;
 
+/**
+ * An expression defined as an operation between two other expressions.
+ */
 public final class BinaryOpExpression extends Expression{
 
   private final Expression left;

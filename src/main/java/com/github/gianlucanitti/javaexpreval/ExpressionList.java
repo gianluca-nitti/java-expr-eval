@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Represents a list of expressions with the operators that concatenate them.
+ * This class implements the logic to split an expression in multiple binary operations according to operator precedence.
+ */
 public final class ExpressionList{
 
   //operator at index i is between item i and item i+1
