@@ -16,11 +16,19 @@ public final class ExpressionList{
 
   private boolean expectOperator = false; //When true, it's expected that an operator is added; othervise, an expression is expected.
 
+  /**
+   * Initializes a new instance of this class.
+   */
   public ExpressionList(){
     items = new ArrayList<Expression>();
     operators = new ArrayList<Character>();
   }
 
+  /**
+   * Adds an expression to the list.
+   * @param item The expression to add.
+   * @throws UnexpectedTokenException if an operator is expected. An operator must always be added before adding another expression.
+   */
   public void addItem(Expression item) throws UnexpectedTokenException{
     if(expectOperator)
       throw new UnexpectedTokenException(expectOperator);
@@ -28,6 +36,12 @@ public final class ExpressionList{
     expectOperator = true;
   }
 
+  /**
+   * Adds an operator to the list. The operator is applied between the last inserted expression and the next inserted expression.
+   * A call to {@link #addOperator(char)} must always be followed by a call to {@link #addItem(Expression)}.
+   * @param op The operator to add.
+   * @throws UnexpectedTokenException if an expression is expected. An expression must always be added before adding another operator.
+   */
   public void addOperator(char op) throws UnexpectedTokenException{
     if(!expectOperator)
       throw new UnexpectedTokenException(expectOperator);
@@ -35,6 +49,11 @@ public final class ExpressionList{
     expectOperator = false;
   }
 
+  /**
+   * Evaluates the specified operators, by replacing any expression-operator-expression structure with a properly initialized {@link BinaryOpExpression}.
+   * @param ops A char or {@link Character} or an array of them that represent the operators to evaluate.
+   * @throws InvalidOperatorException if an unknown operator is found.
+   */
   private void evalOperators(Character ... ops) throws InvalidOperatorException{
     List<Character> opsList = Arrays.asList(ops);
     int i = 0;
@@ -51,6 +70,11 @@ public final class ExpressionList{
     }
   }
 
+  /**
+   * Simplifies this list of expression by returning an equivalent expression.
+   * @throws InvalidOperatorException if an unknown operator is found.
+   * @return An expression equivalent to the list of expressions and operators represented by this object.
+   */
   public Expression simplify() throws InvalidOperatorException{
     evalOperators('^');
     evalOperators('*', '/');

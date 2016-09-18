@@ -159,6 +159,7 @@ public abstract class Expression{
     logWriter.flush();
     return result;
   }
+
   /**
    * Given a string and the index to a open parenthesis in it, computes the respective closed parenthesis.
    * @param s The string containing the parenthesis.
@@ -178,4 +179,5 @@ public abstract class Expression{
     }
     throw new MismatchedParenthesisException();
   }
+  
 }
