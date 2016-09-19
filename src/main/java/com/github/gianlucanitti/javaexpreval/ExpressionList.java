@@ -79,7 +79,7 @@ public final class ExpressionList{
     evalOperators('^');
     evalOperators('*', '/');
     evalOperators('+', '-');
-    if(items.size() != 1 || operators.size() != 0) throw new InvalidOperatorException(operators.get(0)); //TODO: fix
+    if(items.size() != 1 || operators.size() != 0) throw new InvalidOperatorException(operators.get(0));
     return items.get(0);
   }
 

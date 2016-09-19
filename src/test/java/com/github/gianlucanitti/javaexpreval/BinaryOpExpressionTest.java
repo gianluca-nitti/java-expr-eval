@@ -22,7 +22,17 @@ public class BinaryOpExpressionTest extends TestCase{
   }
 
   public void testToString(){
-    //TODO
+    try{
+      double a = 14.5;
+      double b = 20.7;
+      for(char op: new char[]{'+', '-', '*', '/', '^'}){
+        String s = "(" + a + op + b + ")";
+        BinaryOpExpression expr = new BinaryOpExpression(new ConstExpression(a), op, new ConstExpression(b));
+        assertTrue(s.equals(expr.toString()));
+      }
+    }catch(InvalidOperatorException ex){
+      fail(ex.getMessage());
+    }
   }
 
 }

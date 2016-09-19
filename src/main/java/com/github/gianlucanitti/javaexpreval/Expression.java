@@ -132,12 +132,9 @@ public abstract class Expression{
     String currentNumber = "";
     while(i < end){
       char c = expr.charAt(i);
-      if(c == ' ')
-        continue;
-      if(c == '.' || Character.isDigit(c)){ //TODO use system decimal separator
+      if(c == '.' || Character.isDigit(c)){
         currentNumber += c;
-      }
-      if(c == '('){
+      }else if(c == '('){
         int closedIndex = findCloseParenthesis(expr, i);
         subExpressions.addItem(parseRange(expr, i + 1, closedIndex, logWriter));
         i = closedIndex;
@@ -147,8 +144,10 @@ public abstract class Expression{
           currentNumber = "";
         }
         subExpressions.addOperator(c);
-      }else{
-        //throw
+      }else if(c == ')'){ //of a closed parenthesis is foun here instead that in findCloseParenthesis, it means there are more closed than opened ones
+        throw new MismatchedParenthesisException();
+      }else if(c != ' '){ //spaces are allowed and ignored
+        throw new UnknownCharException(expr, i);
       }
       i++;
     }
@@ -179,5 +178,5 @@ public abstract class Expression{
     }
     throw new MismatchedParenthesisException();
   }
-  
+
 }
