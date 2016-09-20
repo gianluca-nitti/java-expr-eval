@@ -73,12 +73,15 @@ public final class ExpressionList{
   /**
    * Simplifies this list of expression by returning an equivalent expression.
    * @throws InvalidOperatorException if an unknown operator is found.
+   * @throws EmptyExpressionException if no expression were added.
    * @return An expression equivalent to the list of expressions and operators represented by this object.
    */
-  public Expression simplify() throws InvalidOperatorException{
+  public Expression simplify() throws InvalidOperatorException, EmptyExpressionException{
     evalOperators('^');
     evalOperators('*', '/');
     evalOperators('+', '-');
+    if(items.size() == 0)
+      throw new EmptyExpressionException();
     if(items.size() != 1 || operators.size() != 0) throw new InvalidOperatorException(operators.get(0));
     return items.get(0);
   }

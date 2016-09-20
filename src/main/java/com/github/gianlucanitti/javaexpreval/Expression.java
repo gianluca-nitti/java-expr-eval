@@ -129,30 +129,39 @@ public abstract class Expression{
   private static final Expression parseRange(String expr, int begin, int end, PrintWriter logWriter) throws ExpressionException{
     int i = begin;
     ExpressionList subExpressions = new ExpressionList();
-    String currentNumber = "";
+    boolean numberIsNeg = false;
+    if(expr.charAt(i) == '+') //first number in the expression can have a sign in front of it (other numbers with sign must be enclused in parenthesis and will be parsed as sub-expressions);
+      i++;
+    else if(expr.charAt(i) == '-'){
+      numberIsNeg = true;
+      i++;
+    }
     while(i < end){
       char c = expr.charAt(i);
       if(c == '.' || Character.isDigit(c)){
-        currentNumber += c;
+        String number = numberIsNeg ? "-" : "";
+        numberIsNeg = false;
+        while(c == '.' || Character.isDigit(c)){
+          number += c;
+          i++;
+          if(i >= end)
+            break;
+          c = expr.charAt(i);
+        }
+        subExpressions.addItem(new ConstExpression(Double.parseDouble(number)));
       }else if(c == '('){
         int closedIndex = findCloseParenthesis(expr, i);
         subExpressions.addItem(parseRange(expr, i + 1, closedIndex, logWriter));
-        i = closedIndex;
+        i = closedIndex + 1;
       }else if(BinaryOpExpression.isAllowedOperator(c)){
-        if(currentNumber.length() != 0){
-          subExpressions.addItem(new ConstExpression(Double.parseDouble(currentNumber)));
-          currentNumber = "";
-        }
         subExpressions.addOperator(c);
-      }else if(c == ')'){ //of a closed parenthesis is foun here instead that in findCloseParenthesis, it means there are more closed than opened ones
+        i++;
+      }else if(c == ')'){ //if a closed parenthesis is found here instead that in findCloseParenthesis, it means there are more closed than opened ones
         throw new MismatchedParenthesisException();
       }else if(c != ' '){ //spaces are allowed and ignored
         throw new UnknownCharException(expr, i);
       }
-      i++;
     }
-    if(currentNumber.length() != 0)
-      subExpressions.addItem(new ConstExpression(Double.parseDouble(currentNumber)));
     Expression result = subExpressions.simplify();
     logWriter.println(expr.substring(begin, end) + " can be rewritten as " + result.toString());
     logWriter.flush();
