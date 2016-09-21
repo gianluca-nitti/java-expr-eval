@@ -9,7 +9,7 @@ import com.github.gianlucanitti.javaexpreval.*;
  * interpreted as shell special characters and removed from the string passed to the JVM and then to the main method.
  * This is required for example in Windows cmd.exe.
  */
-public class App{
+public class ExprCli{
 
   /**
    * Executes the CLI tool with the specified arguments.

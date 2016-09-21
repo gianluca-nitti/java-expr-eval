@@ -4,7 +4,7 @@
   <groupId>com.github.gianlucanitti</groupId>
   <artifactId>javaexpreval</artifactId>
   <packaging>jar</packaging>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <name>java-expr-eval</name>
   <url>http://maven.apache.org</url>
   <properties>
@@ -28,7 +28,7 @@
         <archive>
           <index>true</index>
           <manifest>
-            <mainClass>com.github.gianlucanitti.App</mainClass>
+            <mainClass>com.github.gianlucanitti.ExprCli</mainClass>
             <addClasspath>true</addClasspath>
           </manifest>
         </archive>
