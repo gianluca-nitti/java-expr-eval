@@ -39,17 +39,12 @@ public final class BinaryOpExpression extends Expression{
   }
 
   /**
-   * Evaluates this expression by computing the binary operation.
-   * This is used internally by the library to correctly manage logging of each step.
-   * The correct way to evaluate an expression from outside the package is by using {@link Expression#eval()}, {@link Expression#eval(Writer)} or {@link Expression#eval(OutputStream)}.
-   * @param logWriter A {@link PrintWriter} to log the steps done.
-   * This method doesn't actually log anything (this is done by {@link Expression#eval(PrintWriter)}), but passes the logWriter to the underlying calls to {@link Expression#eval(PrintWriter)} of the operand expressions.
-   * @return The value of this expression.
+   * {@inheritDoc}
    */
   @Override
-  protected double evalExpr(PrintWriter logWriter){
-    double a = left.eval(logWriter);
-    double b = right.eval(logWriter);
+  protected double evalExpr(ExpressionContext context, PrintWriter logWriter) throws UndefinedException{
+    double a = left.eval(context, logWriter);
+    double b = right.eval(context, logWriter);
     double result = 0;
     switch(op){
       case '+': result = a + b; break;

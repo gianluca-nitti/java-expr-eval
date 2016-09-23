@@ -28,13 +28,15 @@ public abstract class Expression{
 
   /**
    * Evaluates this expression. This is used internally by the library to correctly manage logging of each step.
-   * The correct way to evaluate an expression from outside the package is by using {@link #eval()}, {@link #eval(Writer)} or {@link #eval(OutputStream)}.
+   * The correct way to evaluate an expression from outside the package is by using {@link #eval()}, {@link #eval(ExpressionContext)}, {@link #eval(Writer)}, {@link #eval(ExpressionContext, Writer)}.
+   * This method doesn't actually log anything (this is done by {@link #eval(ExpressionContext, PrintWriter)});
+   * the parameter is passed to the underlying calls to {@link Expression#eval(ExpressionContext, PrintWriter)} of the sub-expressions (if any) to properly log each step.
+   * @param context The {@link ExpressionContext} to evaluate the expression in.
    * @param logWriter A {@link PrintWriter} to log the steps done.
-   * This method doesn't actually log anything (this is done by {@link #eval(PrintWriter)});
-   * the parameter must be passed to the underlying calls to {@link Expression#eval(PrintWriter)} of the sub-expressions (if any) to properly log each step.
+   * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (variable) not defined in the context.
    * @return The computed value of this expression.
    */
-  protected abstract double evalExpr(PrintWriter logWriter);
+  protected abstract double evalExpr(ExpressionContext context, PrintWriter logWriter) throws UndefinedException;
 
   /**
    * Returns a string representing the log entry corresponding to the evaluation of this expression.
@@ -49,11 +51,13 @@ public abstract class Expression{
 
   /**
    * Evaluates this expression and logs the steps done to the specified {@link PrintWriter}.
+   * @param context The {@link ExpressionContext} to evaluate the expression in.
    * @param logWriter A {@link PrintWriter} to write the evaluation steps to.
+   * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (variable) not defined in the context.
    * @return The computed value of this expression.
    */
-  protected final double eval(PrintWriter logWriter){
-    double val = evalExpr(logWriter);
+  protected final double eval(ExpressionContext context, PrintWriter logWriter) throws UndefinedException{
+    double val = evalExpr(context, logWriter);
     logWriter.print(getEvalMsg(val));
     logWriter.flush();
     return val;
@@ -61,28 +65,42 @@ public abstract class Expression{
 
   /**
    * Evaluates this expression and logs the steps done to the specified {@link Writer}.
+   * @param context The {@link ExpressionContext} to evaluate the expression in.
    * @param logWriter A {@link Writer} to write the evaluation steps to.
+   * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (variable) not defined in the context.
    * @return The computed value of this expression.
    */
-  public final double eval(Writer logWriter){
-    return eval(new PrintWriter(logWriter));
+  public final double eval(ExpressionContext context, Writer logWriter) throws UndefinedException{
+    return eval(context, new PrintWriter(logWriter));
   }
 
   /**
-   * Evaluates this expression and logs the steps done to the specified {@link OutputStream}.
-   * @param logStream An {@link OutputStream} to write the evaluation steps to.
+   * Evaluates this expression in the specified context without logging the steps done.
+   * @param context The {@link ExpressionContext} to evaluate the expression in.
+   * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (variable) not defined in the context.
    * @return The computed value of this expression.
    */
-  public final double eval(OutputStream logStream){
-    return eval(new OutputStreamWriter(logStream));
+  public final double eval(ExpressionContext context) throws UndefinedException{
+    return eval(context, new OutputStreamWriter(new NullOutputStream()));
   }
 
   /**
-   * Evaluates this expression without logging the step dones.
+   * Evaluates this expression in an empty context and logs the steps done to the specified {@link Writer}.
+   * @param logWriter A {@link Writer} to write the evaluation steps to.
+   * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (variable) not defined in the context.
    * @return The computed value of this expression.
    */
-  public final double eval(){
-    return eval(new NullOutputStream());
+  public final double eval(Writer logWriter) throws UndefinedException{
+    return eval(new ExpressionContext(), logWriter);
+  }
+
+  /**
+   * Evaluates this expression in an empty context without logging the steps done.
+   * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (variable) not defined in the context.
+   * @return The computed value of this expression.
+   */
+  public final double eval() throws UndefinedException{
+    return eval(new ExpressionContext());
   }
 
   /**
@@ -92,18 +110,7 @@ public abstract class Expression{
    * @throws ExpressionException if the parsing process failed, i.e. the given string isn't a well-formed expression.
    */
   public static final Expression parse(String expr) throws ExpressionException{
-    return parse(expr, new NullOutputStream());
-  }
-
-  /**
-   * Parses the given {@link String} into an {@link Expression} object and logs the steps done to the specified {@link OutputStream}.
-   * @param expr The string representation of the expression to parse.
-   * @param logStream An {@link OutputStream} to write the parsing steps to.
-   * @return An {@link Expression} object representing the expression given as string.
-   * @throws ExpressionException if the parsing process failed, i.e. the given string isn't a well-formed expression.
-   */
-  public static final Expression parse(String expr, OutputStream logStream) throws ExpressionException{
-    return parse(expr, new OutputStreamWriter(logStream));
+    return parse(expr, new OutputStreamWriter(new NullOutputStream()));
   }
 
   /**
@@ -130,7 +137,7 @@ public abstract class Expression{
     int i = begin;
     ExpressionList subExpressions = new ExpressionList();
     boolean numberIsNeg = false;
-    if(expr.charAt(i) == '+') //first number in the expression can have a sign in front of it (other numbers with sign must be enclused in parenthesis and will be parsed as sub-expressions);
+    if(expr.charAt(i) == '+') //first number in the expression can have a sign in front of it (other numbers with sign must be enclosed in parenthesis and will be parsed as sub-expressions);
       i++;
     else if(expr.charAt(i) == '-'){
       numberIsNeg = true;
@@ -138,22 +145,32 @@ public abstract class Expression{
     }
     while(i < end){
       char c = expr.charAt(i);
-      if(c == '.' || Character.isDigit(c)){
+      if(c == '.' || Character.isDigit(c)) {
         String number = numberIsNeg ? "-" : "";
         numberIsNeg = false;
-        while(c == '.' || Character.isDigit(c)){
+        while (c == '.' || Character.isDigit(c)) {
           number += c;
+          i++;
+          if (i >= end)
+            break;
+          c = expr.charAt(i);
+        }
+        subExpressions.addItem(new ConstExpression(Double.parseDouble(number)));
+      }else if (c == '_' || Character.isLetter(c)){
+        String varName = "";
+        while(c == '_' || Character.isLetter(c)){
+          varName += c;
           i++;
           if(i >= end)
             break;
           c = expr.charAt(i);
         }
-        subExpressions.addItem(new ConstExpression(Double.parseDouble(number)));
+        subExpressions.addItem(new VariableExpression(varName));
       }else if(c == '('){
         int closedIndex = findCloseParenthesis(expr, i);
         subExpressions.addItem(parseRange(expr, i + 1, closedIndex, logWriter));
         i = closedIndex + 1;
-      }else if(BinaryOpExpression.isAllowedOperator(c)){
+      }else if(BinaryOpExpression.isAllowedOperator(c)) {
         subExpressions.addOperator(c);
         i++;
       }else if(c == ')'){ //if a closed parenthesis is found here instead that in findCloseParenthesis, it means there are more closed than opened ones

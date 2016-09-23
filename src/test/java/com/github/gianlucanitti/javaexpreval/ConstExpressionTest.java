@@ -6,7 +6,11 @@ public class ConstExpressionTest extends TestCase{
 
   public void testEval(){
     ConstExpression exp = new ConstExpression(25);
-    assertEquals(25.0, exp.eval());
+    try {
+      assertEquals(25.0, exp.eval());
+    }catch(UndefinedException ex){
+      fail(ex.getMessage());
+    }
   }
 
   public void testToString(){

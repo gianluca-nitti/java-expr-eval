@@ -16,7 +16,7 @@ public class BinaryOpExpressionTest extends TestCase{
       assertEquals(14.0/6.0, exp.eval());
       exp = new BinaryOpExpression(new ConstExpression(2), '^', new ConstExpression(10));
       assertEquals(Math.pow(2.0, 10.0), exp.eval());
-    }catch(InvalidOperatorException ex){
+    }catch(ExpressionException ex){
       fail(ex.getMessage());
     }
   }

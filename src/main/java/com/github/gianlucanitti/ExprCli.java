@@ -2,6 +2,8 @@ package com.github.gianlucanitti;
 
 import com.github.gianlucanitti.javaexpreval.*;
 
+import java.io.OutputStreamWriter;
+
 /**
  * Main class of the command line tool that solves expression given as CLI arguments.
  * <b>WARNING:</b> when you run this tool from the command line, if your expression contains some symbols
@@ -21,9 +23,10 @@ public class ExprCli{
       System.err.println("Please specify expression as first command line argument. \"-v\" can be used as second argument to print the parsing log.");
       System.exit(1);
     }
+    OutputStreamWriter stdoutWriter = new OutputStreamWriter(System.out);
     try{
       if(args.length == 2 && args[1].equals("-v"))
-        System.out.println("Result = " + Expression.parse(args[0], System.out).eval(System.out));
+        System.out.println("Result = " + Expression.parse(args[0], stdoutWriter).eval(stdoutWriter));
       else
         System.out.println("Result = " + Expression.parse(args[0]).eval());
     }catch(/*Expression*/Exception e){
