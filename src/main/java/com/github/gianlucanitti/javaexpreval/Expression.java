@@ -158,7 +158,9 @@ public abstract class Expression{
         i++;
       }else if(c == ')'){ //if a closed parenthesis is found here instead that in findCloseParenthesis, it means there are more closed than opened ones
         throw new MismatchedParenthesisException();
-      }else if(c != ' '){ //spaces are allowed and ignored
+      }else if(c == ' ') { //spaces are allowed and ignored
+        i++;
+      }else{
         throw new UnknownCharException(expr, i);
       }
     }
