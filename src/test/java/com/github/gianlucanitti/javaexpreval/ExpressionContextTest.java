@@ -42,7 +42,8 @@ public class ExpressionContextTest extends TestCase{
         ExpressionContext c = new ExpressionContext();
         c.setVariable("a", 4);
         c.setVariable("b", 8);
-        assertEquals("a=4.0, b=8.0", c.toString());
+        assertTrue(c.toString().contains("a=4.0"));
+        assertTrue(c.toString().contains("b=8.0"));
     }
 
     public void testClear(){
