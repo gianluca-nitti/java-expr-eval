@@ -20,6 +20,18 @@ public class ExpressionContextTest extends TestCase{
         }
     }
 
+    public void testSetVariableExpression(){
+        try {
+            ExpressionContext c = new ExpressionContext();
+            c.setVariable("a", new BinaryOpExpression(new ConstExpression(3), '+', new ConstExpression(5)));
+            assertEquals(8.0, c.getVariable("a"));
+            c.setVariable("b", new NegatedExpression(new VariableExpression("a")));
+            assertEquals(-8.0, c.getVariable("b"));
+        }catch(ExpressionException ex){
+            fail(ex.getMessage());
+        }
+    }
+
     public void testDelVariable(){
         ExpressionContext c = new ExpressionContext();
         c.setVariable("someVar", 1);

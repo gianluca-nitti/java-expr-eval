@@ -1,5 +1,6 @@
 package com.github.gianlucanitti.javaexpreval;
 
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +38,28 @@ public class ExpressionContext {
      */
     public void setVariable(String varName, double value){
         variables.put(varName, value);
+    }
+
+    /**
+     * Evaluates the specified {@link Expression} in this context, logging the steps done to the provided {@link Writer}, and binds its value to the specified variable name.
+     * If a variable with the same name is already defined, it's value is replaced.
+     * @param varName The name of the variable to assign the value of the expression to.
+     * @param value The expression whose value will be assigned to the variable.
+     * @param logWriter A {@link Writer} where the evaluation steps of the expression will be logged to.
+     * @throws UndefinedException if <code>value</code> can't be evaluated because it contains a symbol that isn't defined in this context.
+     */
+    public void setVariable(String varName, Expression value, Writer logWriter) throws UndefinedException{
+        variables.put(varName, value.eval(this, logWriter));
+    }
+
+    /**
+     * Evaluates the specified {@link Expression} in this context, without logging the steps done, and binds its value to the specified variable name.
+     * @param varName The name of the variable to assign the value of the expression to.
+     * @param value The expression whose value will be assigned to the variable.
+     * @throws UndefinedException if <code>value</code> can't be evaluated because it contains a symbol that isn't defined in this context.
+     */
+    public void setVariable(String varName, Expression value) throws UndefinedException{
+        variables.put(varName, value.eval(this));
     }
 
     /**
