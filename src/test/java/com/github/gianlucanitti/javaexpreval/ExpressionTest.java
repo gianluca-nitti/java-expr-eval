@@ -16,8 +16,8 @@ public class ExpressionTest extends TestCase{
 
   public void testParse(){
     ExpressionContext c = new ExpressionContext();
-    c.setVariable("some_Var", 45.8);
-    assertExprValue(-1879080.904, "((50+2-(3*some_Var))+4-6*7+0)^3", c);
+    c.setVariable("some_Var", -45.8);
+    assertExprValue(-1879080.904, "((50+2-(3*-some_Var))+4-6*7+0)^3", c);
   }
 
 }

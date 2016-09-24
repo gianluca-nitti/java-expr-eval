@@ -50,6 +50,14 @@ public final class ExpressionList{
   }
 
   /**
+   * Returns a boolean stating whether this {@link ExpressionList} is expecting an operator or an expression.
+   * @return <code>true</code> if an operator is expected, <code>false</code> if an expression is expected.
+   */
+  public boolean isExpectingOperator(){
+    return expectOperator;
+  }
+
+  /**
    * Evaluates the specified operators, by replacing any expression-operator-expression structure with a properly initialized {@link BinaryOpExpression}.
    * @param ops A char or {@link Character} or an array of them that represent the operators to evaluate.
    * @throws InvalidOperatorException if an unknown operator is found.

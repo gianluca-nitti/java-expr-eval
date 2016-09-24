@@ -15,4 +15,10 @@ public class VariableExpressionTest extends TestCase{
         }
     }
 
+    public void testToString(){
+        String varName = "someVar";
+        VariableExpression expr = new VariableExpression(varName);
+        assertEquals(varName, expr.toString());
+    }
+
 }

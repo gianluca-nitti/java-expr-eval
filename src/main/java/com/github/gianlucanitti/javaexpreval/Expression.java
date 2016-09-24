@@ -136,18 +136,25 @@ public abstract class Expression{
   private static final Expression parseRange(String expr, int begin, int end, PrintWriter logWriter) throws ExpressionException{
     int i = begin;
     ExpressionList subExpressions = new ExpressionList();
-    boolean numberIsNeg = false;
+    /*boolean numberIsNeg = false;
     if(expr.charAt(i) == '+') //first number in the expression can have a sign in front of it (other numbers with sign must be enclosed in parenthesis and will be parsed as sub-expressions);
       i++;
     else if(expr.charAt(i) == '-'){
       numberIsNeg = true;
       i++;
-    }
+    }*/
+    boolean negate = false;
+    boolean expectExpression;
     while(i < end){
+      expectExpression = !subExpressions.isExpectingOperator();
       char c = expr.charAt(i);
-      if(c == '.' || Character.isDigit(c)) {
-        String number = numberIsNeg ? "-" : "";
-        numberIsNeg = false;
+      Expression itemToAdd = null;
+      if(expectExpression && (c == '+' || c == '-')) {
+        if(c == '-')
+          negate = !negate;
+        i++;
+      }else if(c == '.' || Character.isDigit(c)) {
+        String number = "";
         while (c == '.' || Character.isDigit(c)) {
           number += c;
           i++;
@@ -155,7 +162,7 @@ public abstract class Expression{
             break;
           c = expr.charAt(i);
         }
-        subExpressions.addItem(new ConstExpression(Double.parseDouble(number)));
+        itemToAdd = new ConstExpression(Double.parseDouble(number));
       }else if (c == '_' || Character.isLetter(c)){
         String varName = "";
         while(c == '_' || Character.isLetter(c)){
@@ -165,10 +172,10 @@ public abstract class Expression{
             break;
           c = expr.charAt(i);
         }
-        subExpressions.addItem(new VariableExpression(varName));
+        itemToAdd = new VariableExpression(varName);
       }else if(c == '('){
         int closedIndex = findCloseParenthesis(expr, i);
-        subExpressions.addItem(parseRange(expr, i + 1, closedIndex, logWriter));
+        itemToAdd = parseRange(expr, i + 1, closedIndex, logWriter);
         i = closedIndex + 1;
       }else if(BinaryOpExpression.isAllowedOperator(c)) {
         subExpressions.addOperator(c);
@@ -179,6 +186,10 @@ public abstract class Expression{
         i++;
       }else{
         throw new UnknownCharException(expr, i);
+      }
+      if(itemToAdd != null) {
+        subExpressions.addItem(negate ? new NegatedExpression(itemToAdd) : itemToAdd);
+        negate = false;
       }
     }
     Expression result = subExpressions.simplify();
