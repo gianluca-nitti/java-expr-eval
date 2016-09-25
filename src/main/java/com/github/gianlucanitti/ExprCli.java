@@ -2,6 +2,8 @@ package com.github.gianlucanitti;
 
 import com.github.gianlucanitti.javaexpreval.*;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 /**
@@ -18,20 +20,21 @@ public class ExprCli{
    * @param args An array of command line arguments. <code>args[0]</code> must contain the expression to solve;
    * if args[1] is present and equal to "-v", the tool will run in verbose mode, i.e. logging all the steps done to parse and evaluate the expression.
    */
-  public static void main(String[] args){
-    if(args.length != 1 && args.length != 2){
-      System.err.println("Please specify expression as first command line argument. \"-v\" can be used as second argument to print the parsing log.");
-      System.exit(1);
-    }
+  public static void main(String[] args) throws IOException{
+    InputStreamReader stdinReader = new InputStreamReader(System.in);
     OutputStreamWriter stdoutWriter = new OutputStreamWriter(System.out);
-    try{
+    OutputStreamWriter stderrWriter = new OutputStreamWriter(System.err);
+    InteractiveExpressionContext context = new InteractiveExpressionContext(stdinReader, stdoutWriter, stdoutWriter, stderrWriter, true);
+    context.setPrompt("> ");
+    while(context.update());
+    /*try{
       if(args.length == 2 && args[1].equals("-v"))
         System.out.println("Result = " + Expression.parse(args[0], stdoutWriter).eval(stdoutWriter));
       else
         System.out.println("Result = " + Expression.parse(args[0]).eval());
-    }catch(/*Expression*/Exception e){
+    }catch(ExpressionException e){
       e.printStackTrace();
-    }
+    }*/
   }
 
 }
