@@ -193,8 +193,12 @@ public abstract class Expression{
       }
     }
     Expression result = subExpressions.simplify();
-    logWriter.println(expr.substring(begin, end) + " can be rewritten as " + result.toString());
-    logWriter.flush();
+    String userStr = expr.substring(begin, end);
+    String parsedStr = result.toString();
+    if(!userStr.equals(parsedStr)) { //log only if the string representation of the parsed expression is different from the input string
+      logWriter.println(userStr + " can be rewritten as " + parsedStr);
+      logWriter.flush();
+    }
     return result;
   }
 

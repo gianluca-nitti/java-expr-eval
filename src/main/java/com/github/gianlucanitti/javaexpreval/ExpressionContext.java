@@ -85,7 +85,7 @@ public class ExpressionContext {
         String result = "";
         for(Map.Entry<String, Double> var: variables.entrySet())
             result += var.getKey() + "=" + var.getValue() + ", ";
-        return result.substring(0, result.length() - 2);
+        return result.length() == 0 ? result : result.substring(0, result.length() - 2);
     }
 
 }

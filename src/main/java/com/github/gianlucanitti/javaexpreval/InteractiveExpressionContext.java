@@ -1,7 +1,7 @@
 package com.github.gianlucanitti.javaexpreval;
 
-import java.io.*;
-import java.util.HashMap;
+        import java.io.*;
+        import java.util.HashMap;
 
 /**
  * An {@link ExpressionContext} with additional methods to interact with the user through {@link Reader}s (input) and {@link Writer}s (output).
@@ -10,7 +10,7 @@ import java.util.HashMap;
 public class InteractiveExpressionContext extends ExpressionContext {
 
     public enum Command{
-        SET, DELETE, CLEAR, HELP, EXIT
+        CONTEXT, CLEAR, HELP, EXIT
     }
 
     private BufferedReader inputReader;
@@ -40,14 +40,14 @@ public class InteractiveExpressionContext extends ExpressionContext {
 
     /**
      * Changes the strings that will be recognized as commands by the {@link #update()} method.
-     * @param set The string identifying the command to define a variable.
-     * @param delete The string identifying the command to un-define a variable.
+     * @param context The string identifying the command to print all the defined variables.
      * @param clear The string identifying the command to un-define all the variables.
+     * @param help The string identifying the help command.
+     * @param exit The string identifying the exit command.
      */
-    public void setCommands(String set, String delete, String clear, String help, String exit){
+    public void setCommands(String context, String clear, String help, String exit){
         commands = new HashMap<String, Command>();
-        commands.put(set, Command.SET);
-        commands.put(delete, Command.DELETE);
+        commands.put(context, Command.CONTEXT);
         commands.put(clear, Command.CLEAR);
         commands.put(help, Command.HELP);
         commands.put(exit, Command.EXIT);
@@ -58,7 +58,7 @@ public class InteractiveExpressionContext extends ExpressionContext {
      * Equivalent to setCommands("set", "delete", "clear").
      */
     public void setDefaultCommands(){
-        setCommands("set", "delete", "clear", "help", "exit");
+        setCommands("context", "clear", "help", "exit");
     }
 
     /**
@@ -103,60 +103,46 @@ public class InteractiveExpressionContext extends ExpressionContext {
     /**
      * Reads commands from the input {@link Reader}, if any, and executes them.
      * It then writes their output, if any, to the output {@link Writer}s.
-     * @return <code>false</code> if the EXIT command is found, otherwise <code>false</code>.
+     * @return <code>false</code> if the EXIT command is found, <code>true</code> if the end of the input stream is reached
+     * ({@link BufferedReader#readLine()} on the input {@link Reader} returns <code>null</code>).
      * @throws IOException in case of IO problems with the {@link Reader} or {@link Writer}.
      */
     public boolean update() throws IOException{
         String command;
         while((command = getLine()) != null){
-            String[] args = command.split("\\s+");
-            if(args.length == 0)
-                continue;
             try {
-                if(commands.containsKey(args[0]))
-                    switch (commands.get(args[0])) {
-                        case SET:
-                            if (args.length < 3) {
-                                reportCmdError(args[0], "a variable and an expression must be specified, separated by spaces");
-                                continue;
-                            }
-                            String expr = "";
-                            for(int i = 2; i < args.length; i++)
-                                expr += args[i];
-                            setVariable(args[1], Expression.parse(expr, verboseWriter));
-                            verboseWriter.println(args[1] + " is now " + getVariable(args[1]));
-                            break;
-                        case DELETE:
-                            if (args.length != 2) {
-                                reportCmdError(args[0], "a single argument (the name of a variable) must be specified");
-                                continue;
-                            }
-                            delVariable(args[1]);
-                            verboseWriter.println(args[1] + " has been deleted.");
+                if(commands.containsKey(command))
+                    switch (commands.get(command)) {
+                        case CONTEXT:
+                            outputWriter.println(toString());
                             break;
                         case CLEAR:
-                            if (args.length != 1) {
-                                reportCmdError(args[0], "no arguments must be specified");
-                                continue;
-                            }
                             clear();
-                            verboseWriter.println("All variables has been deleted.");
+                            verboseWriter.println("All variables have been deleted.");
                             break;
                         case HELP:
                             PrintWriter helpWriter = helpVerbose ? verboseWriter : outputWriter;
-                            helpWriter.println("Available commands: set, delete, clear, help, exit"); //TODO
+                            helpWriter.println("Accepted statements are expressions, assignments and commands.");
+                            helpWriter.println("An expression can be formed by integer or decimal numbers, the +,-,*,/,^ binary operators, variables and parenthesis.");
+                            helpWriter.println("An assignment is formed by a variable name followed by the = symbol and an expression, which is evaluated and bound to that variable.");
+                            helpWriter.println("An empty assignment (in the form \"someVariable=\") deletes the variable.");
+                            helpWriter.println("A variable is a string of one or more letters and/or underscores. Variables can't be named as commands, which are reserved words.");
+                            helpWriter.println("The commands are: context (prints all the defined variables), clear (deletes all the variables), help (shows this message) and exit (stops reading input).");
                             break;
                         case EXIT:
                             return false;
                     }
                 else{ //if the string doesn't begin with a known command
-                    if (command.contains("=")) { //if it contains an =, then it's considered a variable assignment (like with the set command)
+                    if (command.contains("=")) { //if it contains an =, then it's considered a variable assignment
                         String[] sides = command.split("=");
-                        if (sides.length != 2)
-                            reportCmdError("=", "only one = operator per command is allowed");
-                        else {
-                            setVariable(sides[0], Expression.parse(sides[1], verboseWriter));
+                        if(sides.length == 1){ //an assignment with nothing on the right of the equality symbol (e.g. "someVar=") deletes the variable
+                            delVariable(sides[0]);
+                            verboseWriter.println(sides[0] + " has been deleted.");
+                        }else if (sides.length == 2) {
+                            setVariable(sides[0], Expression.parse(sides[1], verboseWriter), verboseWriter);
                             verboseWriter.println(sides[0] + " is now " + getVariable(sides[0]));
+                        }else {
+                            reportCmdError("=", "only one = operator per command is allowed");
                         }
                     }else //otherwise, it's parsed as an expression
                         outputWriter.println(Expression.parse(command, verboseWriter).eval(this, verboseWriter));
