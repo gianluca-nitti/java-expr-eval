@@ -35,8 +35,10 @@ public class ExpressionContext {
      * If a variable with the same name is already defined, it's value is replaced.
      * @param varName The name of the variable to add/edit.
      * @param value The value to assign to the variable.
+     * @throws InvalidSymbolNameException if <code>varName</code> isn't a valid symbol name.
      */
-    public void setVariable(String varName, double value){
+    public void setVariable(String varName, double value) throws InvalidSymbolNameException{
+        VariableExpression.assertValidSymbolName(varName);
         variables.put(varName, value);
     }
 
@@ -47,9 +49,10 @@ public class ExpressionContext {
      * @param value The expression whose value will be assigned to the variable.
      * @param logWriter A {@link Writer} where the evaluation steps of the expression will be logged to.
      * @throws UndefinedException if <code>value</code> can't be evaluated because it contains a symbol that isn't defined in this context.
+     * @throws InvalidSymbolNameException if <code>varName</code> isn't a valid symbol name.
      */
-    public void setVariable(String varName, Expression value, Writer logWriter) throws UndefinedException{
-        variables.put(varName, value.eval(this, logWriter));
+    public void setVariable(String varName, Expression value, Writer logWriter) throws UndefinedException, InvalidSymbolNameException{
+        setVariable(varName, value.eval(this, logWriter));
     }
 
     /**
@@ -57,9 +60,10 @@ public class ExpressionContext {
      * @param varName The name of the variable to assign the value of the expression to.
      * @param value The expression whose value will be assigned to the variable.
      * @throws UndefinedException if <code>value</code> can't be evaluated because it contains a symbol that isn't defined in this context.
+     * @throws InvalidSymbolNameException if <code>varName</code> isn't a valid symbol name.
      */
-    public void setVariable(String varName, Expression value) throws UndefinedException{
-        variables.put(varName, value.eval(this));
+    public void setVariable(String varName, Expression value) throws UndefinedException, InvalidSymbolNameException{
+        setVariable(varName, value.eval(this));
     }
 
     /**

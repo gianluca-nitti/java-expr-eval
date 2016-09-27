@@ -136,13 +136,6 @@ public abstract class Expression{
   private static final Expression parseRange(String expr, int begin, int end, PrintWriter logWriter) throws ExpressionException{
     int i = begin;
     ExpressionList subExpressions = new ExpressionList();
-    /*boolean numberIsNeg = false;
-    if(expr.charAt(i) == '+') //first number in the expression can have a sign in front of it (other numbers with sign must be enclosed in parenthesis and will be parsed as sub-expressions);
-      i++;
-    else if(expr.charAt(i) == '-'){
-      numberIsNeg = true;
-      i++;
-    }*/
     boolean negate = false;
     boolean expectExpression;
     while(i < end){
@@ -163,7 +156,7 @@ public abstract class Expression{
           c = expr.charAt(i);
         }
         itemToAdd = new ConstExpression(Double.parseDouble(number));
-      }else if (c == '_' || Character.isLetter(c)){
+      }else if (VariableExpression.isValidSymbolChar(c)){
         String varName = "";
         while(c == '_' || Character.isLetter(c)){
           varName += c;

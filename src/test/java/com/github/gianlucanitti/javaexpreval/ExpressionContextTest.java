@@ -6,11 +6,17 @@ public class ExpressionContextTest extends TestCase{
 
     public void testGetSetVariable(){
         ExpressionContext c = new ExpressionContext();
-        c.setVariable("someVar", 5);
         try {
+            c.setVariable("someVar", 5);
             assertEquals(5.0, c.getVariable("someVar"));
-        }catch(UndefinedException ex){
+        }catch(ExpressionException ex){
             fail(ex.getMessage());
+        }
+        try{
+            c.setVariable("some_invalid_variable123", new ConstExpression(1));
+            fail("A variable name with invalid characters is being accepted.");
+        }catch(ExpressionException ex){
+            assertEquals(ex.getMessage(), "Error while parsing expression: \"some_invalid_variable123\" isn't a valid symbol name because it contains the '1' character.");
         }
         try {
             double x = c.getVariable("someUndefinedVar");
@@ -34,8 +40,12 @@ public class ExpressionContextTest extends TestCase{
 
     public void testDelVariable(){
         ExpressionContext c = new ExpressionContext();
-        c.setVariable("someVar", 1);
-        c.setVariable("someOtherVar", 2);
+        try {
+            c.setVariable("someVar", 1);
+            c.setVariable("someOtherVar", 2);
+        }catch(ExpressionException ex){
+            fail(ex.getMessage());
+        }
         c.delVariable("someVar");
         try {
             assertEquals(2.0, c.getVariable("someOtherVar"));
@@ -52,15 +62,23 @@ public class ExpressionContextTest extends TestCase{
 
     public void testToString(){
         ExpressionContext c = new ExpressionContext();
-        c.setVariable("a", 4);
-        c.setVariable("b", 8);
+        try {
+            c.setVariable("a", 4);
+            c.setVariable("b", 8);
+        }catch(InvalidSymbolNameException ex){
+            fail(ex.getMessage());
+        }
         assertTrue(c.toString().contains("a=4.0"));
         assertTrue(c.toString().contains("b=8.0"));
     }
 
     public void testClear(){
         ExpressionContext c = new ExpressionContext();
-        c.setVariable("someVar", 1);
+        try {
+            c.setVariable("someVar", 1);
+        }catch(InvalidSymbolNameException ex){
+            fail(ex.getMessage());
+        }
         c.clear();
         try{
             c.getVariable("someVar");
