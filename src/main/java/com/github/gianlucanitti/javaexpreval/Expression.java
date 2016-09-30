@@ -156,9 +156,9 @@ public abstract class Expression{
           c = expr.charAt(i);
         }
         itemToAdd = new ConstExpression(Double.parseDouble(number));
-      }else if (VariableExpression.isValidSymbolChar(c)){
+      }else if (VariableExpression.isValidSymbolFirstChar(c)){
         String varName = "";
-        while(c == '_' || Character.isLetter(c)){
+        while(VariableExpression.isValidSymbolChar(c)){
           varName += c;
           i++;
           if(i >= end)

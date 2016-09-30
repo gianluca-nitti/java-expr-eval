@@ -14,4 +14,11 @@ public class InvalidSymbolNameException extends ExpressionException {
         super("\"" + name + "\" isn't a valid symbol name because it contains the '" + name.charAt(badCharIndex) + "' character.");
     }
 
+    /**
+     * Initializes a new InvalidSymbolNameException related to the empty string.
+     */
+    public InvalidSymbolNameException(){
+        super("The empty string isn't a valid symbol identifier.");
+    }
+
 }

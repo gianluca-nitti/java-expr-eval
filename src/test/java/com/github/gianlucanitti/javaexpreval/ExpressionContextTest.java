@@ -8,21 +8,22 @@ public class ExpressionContextTest extends TestCase{
         ExpressionContext c = new ExpressionContext();
         try {
             c.setVariable("someVar", 5);
+            c.setVariable("some_other_variable123", new ConstExpression(1));
             assertEquals(5.0, c.getVariable("someVar"));
         }catch(ExpressionException ex){
             fail(ex.getMessage());
         }
         try{
-            c.setVariable("some_invalid_variable123", new ConstExpression(1));
+            c.setVariable("123some_invalid_variable123", new ConstExpression(1));
             fail("A variable name with invalid characters is being accepted.");
         }catch(ExpressionException ex){
-            assertEquals(ex.getMessage(), "Error while parsing expression: \"some_invalid_variable123\" isn't a valid symbol name because it contains the '1' character.");
+            assertEquals(ex.getMessage(), "Expression error: \"123some_invalid_variable123\" isn't a valid symbol name because it contains the '1' character.");
         }
         try {
             double x = c.getVariable("someUndefinedVar");
             fail("Undefined variable is bound to value " + x);
         }catch(UndefinedException ex){
-            assertEquals("Error while parsing expression: The variable \"someUndefinedVar\" is not defined.", ex.getMessage());
+            assertEquals("Expression error: The variable \"someUndefinedVar\" is not defined.", ex.getMessage());
         }
     }
 

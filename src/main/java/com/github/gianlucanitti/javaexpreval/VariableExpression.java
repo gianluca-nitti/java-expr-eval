@@ -21,20 +21,35 @@ public class VariableExpression extends Expression{
 
     /**
      * Checks if the specified character can be part of a symbol (variable) name.
+     * The first character as more restrictions; <code>isValidSymbolChar(c)</code> doesn't guarantee that <code>c</code> can be used as the first character of a symbol name;
+     * see {@link #isValidSymbolFirstChar(char)} for this.
      * @param c The character to verify.
-     * @return <code>true</code> if <code>c</code> can be used in symbol names (<code>c</code> is a letter or an underscore), <code>false</code> otherwise.
+     * @return <code>true</code> if <code>c</code> can be used in symbol names (<code>c</code> is a letter, an underscore or a digit), <code>false</code> otherwise.
      */
     public static boolean isValidSymbolChar(char c){
+        return Character.isDigit(c) || isValidSymbolFirstChar(c);
+    }
+
+    /**
+     * Checks if the specified character can be the first character of a symbol (variable) name.
+     * @param c The character to verify.
+     * @return <code>true</code> if <code>c</code> can be the first character of a symbol names (<code>c</code> is a letter or an underscore), <code>false</code> otherwise.
+     */
+    public static boolean isValidSymbolFirstChar(char c){
         return c == '_' || Character.isLetter(c);
     }
 
     /**
      * If the specified string is an invalid symbol name, returns the index of the first character that isn't a letter or an underscore.
      * @param s The symbol name.
-     * @return <code>-1</code> if <code>s</code> is a valid symbol name, otherwise the index of the first invalid character in <code>s</code>.
+     * @return <code>-1</code> if <code>s</code> is a valid symbol name, <code>-2</code> if <code>s</code> is empty (and thus not a valid symbol name),otherwise the index of the first invalid character in <code>s</code>.
      */
     public static int firstInvalidSymbolNameCharIndex(String s){
-        for(int i = 0; i < s.length(); i++)
+        if(s.length() == 0)
+            return -2;
+        if(!isValidSymbolFirstChar(s.charAt(0)))
+            return 0;
+        for(int i = 1; i < s.length(); i++)
             if(!isValidSymbolChar(s.charAt(i)))
                 return i;
         return -1;
@@ -56,6 +71,8 @@ public class VariableExpression extends Expression{
      */
     public static void assertValidSymbolName(String s) throws InvalidSymbolNameException{
         int index = firstInvalidSymbolNameCharIndex(s);
+        if (index == -2)
+            throw new InvalidSymbolNameException();
         if(index != -1)
             throw new InvalidSymbolNameException(s, index);
     }

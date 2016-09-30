@@ -12,7 +12,7 @@ public abstract class ExpressionException extends Exception{
    * @param msg A message describing the occurred problem.
    */
   public ExpressionException(String msg){
-    super("Error while parsing expression: " + msg);
+    super("Expression error: " + msg);
   }
   
 }

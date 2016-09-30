@@ -29,9 +29,10 @@ public class VariableExpressionTest extends TestCase{
         assertTrue(VariableExpression.isValidSymbolName("someVariable"));
         assertTrue(VariableExpression.isValidSymbolName("_"));
         assertTrue(VariableExpression.isValidSymbolName("some_other_variable"));
+        assertTrue(VariableExpression.isValidSymbolName("var2"));
         assertFalse(VariableExpression.isValidSymbolName("a-variable"));
         assertFalse(VariableExpression.isValidSymbolName("   "));
-        assertFalse(VariableExpression.isValidSymbolName("var2"));
+        assertFalse(VariableExpression.isValidSymbolName("4var"));
     }
 
 }
