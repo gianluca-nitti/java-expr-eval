@@ -9,8 +9,34 @@ package com.github.gianlucanitti.javaexpreval;
  */
 public class InteractiveExpressionContext extends ExpressionContext {
 
-    public enum Command{
+    /**
+     * Enumeration of commands that the user can give to the context through the input {@link Reader}.
+     * @see #setCommands(String, String, String, String)
+     * @see #setDefaultCommands()
+     */
+    private enum Command{
         CONTEXT, CLEAR, HELP, EXIT
+    }
+
+    /**
+     * The reasons that can cause {@link #update()} to return.
+     * @see #update()
+     */
+    public enum Status{
+        /**
+         * {@link #update()} returned because the end of the input {@link Reader} was reached.
+         */
+        INPUT_END,
+        /**
+         * {@link #update()} returned because an exit command was read from the input {@link Reader}
+         * ({@link BufferedReader#readLine()} returned <code>null</code>).
+         */
+        EXIT,
+        /**
+         * {@link #update()} returned because an error occurred while executing a statement
+         *  and {@link #setStopOnError(boolean)} was called with <code>true</code> before calling {@link #update()}.
+         */
+        ERROR
     }
 
     private BufferedReader inputReader;
@@ -20,22 +46,33 @@ public class InteractiveExpressionContext extends ExpressionContext {
     private HashMap<String, Command> commands;
     private String prompt;
     private boolean helpVerbose;
+    private boolean stopOnError;
 
     /**
      * Initializes an InteractiveExpressionContext that takes input from the specified {@link Reader} and writes output to the specified {@link Writer}s.
      * @param input The input {@link Reader}.
-     * @param output The {@link Writer} where normal output (evaluation results, errors) will be written to.
+     * @param output The {@link Writer} where normal output evaluation results will be written to.
      * @param verboseOutput The {@link Writer} where verbose output (evaluation steps, variable assignments) will be written to.
      * @param error The {@link Writer} where error output will be written to.
      * @param autoFlush boolean stating if the output {@link Writer}s must be automatically flushed. This is passed to {@link PrintWriter#PrintWriter(Writer, boolean)}.
      */
     public InteractiveExpressionContext(Reader input, Writer output, Writer verboseOutput, Writer error, boolean autoFlush){
-        inputReader = new BufferedReader(input);
-        outputWriter = new PrintWriter(output, autoFlush);
-        verboseWriter = new PrintWriter(verboseOutput, autoFlush);
-        errorWriter = new PrintWriter(error, autoFlush);
+        setInputReader(input);
+        setOutputWriter(output, autoFlush);
+        setVerboseOutputWriter(verboseOutput, autoFlush);
+        setErrorOutputWriter(error, autoFlush);
         setDefaultCommands();
+        setPrompt("");
         helpVerbose = false;
+    }
+
+    /**
+     * Initializes an InteractiveExpressionContext without attached I/O.
+     * You can later use {@link #setInputReader(Reader)}, {@link #setOutputWriter(Writer, boolean)}, {@link #setVerboseOutputWriter(Writer, boolean)}, {@link #setErrorOutputWriter(Writer, boolean)}
+     * to attach this object to I/O streams.
+     */
+    public InteractiveExpressionContext(){
+        this(NullInputStream.getReader(), NullOutputStream.getWriter(), NullOutputStream.getWriter(), NullOutputStream.getWriter(), false);
     }
 
     /**
@@ -62,6 +99,41 @@ public class InteractiveExpressionContext extends ExpressionContext {
     }
 
     /**
+     * Sets the input {@link Reader}.
+     * @param r The {@link Reader} from which user input will be read.
+     */
+    public void setInputReader(Reader r){
+        inputReader = new BufferedReader(r);
+    }
+
+    /**
+     * Sets the output {@link Writer} for evaluation results.
+     * @param w The {@link Writer} where evaluation results will be written to.
+     * @param autoFlush boolean stating if this {@link Writer} must be automatically flushed. This is passed to {@link PrintWriter#PrintWriter(Writer, boolean)}.
+     */
+    public void setOutputWriter(Writer w, boolean autoFlush){
+        outputWriter = new PrintWriter(w, autoFlush);
+    }
+
+    /**
+     * Sets the {@link Writer} for verbose output (parsing and evaluation steps, variable assignments).
+     * @param w The {@link Writer} where verbose output will be written to.
+     * @param autoFlush boolean stating if this {@link Writer} must be automatically flushed. This is passed to {@link PrintWriter#PrintWriter(Writer, boolean)}.
+     */
+    public void setVerboseOutputWriter(Writer w, boolean autoFlush){
+        verboseWriter = new PrintWriter(w, autoFlush);
+    }
+
+    /**
+     * Sets the {@link Writer} for error messages output.
+     * @param w The {@link Writer} where error messages will be written to.
+     * @param autoFlush boolean stating if this {@link Writer} must be automatically flushed. This is passed to {@link PrintWriter#PrintWriter(Writer, boolean)}.
+     */
+    public void setErrorOutputWriter(Writer w, boolean autoFlush){
+        errorWriter = new PrintWriter(w, autoFlush);
+    }
+
+    /**
      * Sets a string to print to the output {@link Writer} before reading a line from the input {@link Reader}.
      * Note that when a prompt is set, the output writer will be flushed every time the prompt is written to it.
      * @param p The prompt string.
@@ -79,12 +151,11 @@ public class InteractiveExpressionContext extends ExpressionContext {
     }
 
     /**
-     * Writes an error message about the specified command to the error {@link Writer}
-     * @param cmd The command generating the error.
-     * @param error The error message.
+     * Set a parameter that determines if the {@link #update()} method should stop reading input and return when an error occurs. Defaults to <code>false</code>.
+     * @param value <code>true</code> if {@link #update()} should stop reading input on errors, <code>false</code> is it should continue anyway (default).
      */
-    private void reportCmdError(String cmd, String error){
-        errorWriter.println("Invalid usage of " + cmd + ": " + error + ".");
+    public void setStopOnError(boolean value){
+        stopOnError = value;
     }
 
     /**
@@ -103,11 +174,11 @@ public class InteractiveExpressionContext extends ExpressionContext {
     /**
      * Reads commands from the input {@link Reader}, if any, and executes them.
      * It then writes their output, if any, to the output {@link Writer}s.
-     * @return <code>false</code> if the EXIT command is found, <code>true</code> if the end of the input stream is reached
-     * ({@link BufferedReader#readLine()} on the input {@link Reader} returns <code>null</code>).
+     * @return One of the {@link Status} values depending on what caused the method to return (see {@link Status} for more detail).
      * @throws IOException in case of IO problems with the {@link Reader} or {@link Writer}.
+     * @see Status
      */
-    public boolean update() throws IOException{
+    public Status update() throws IOException{
         String command;
         while((command = getLine()) != null){
             try {
@@ -130,7 +201,7 @@ public class InteractiveExpressionContext extends ExpressionContext {
                             helpWriter.println("The commands are: context (prints all the defined variables), clear (deletes all the variables), help (shows this message) and exit (stops reading input).");
                             break;
                         case EXIT:
-                            return false;
+                            return Status.EXIT;
                     }
                 else{ //if the string doesn't begin with a known command
                     if (command.contains("=")) { //if it contains an =, then it's considered a variable assignment
@@ -139,19 +210,27 @@ public class InteractiveExpressionContext extends ExpressionContext {
                             delVariable(sides[0]);
                             verboseWriter.println(sides[0] + " has been deleted.");
                         }else if (sides.length == 2) {
-                            setVariable(sides[0], Expression.parse(sides[1], verboseWriter), verboseWriter);
-                            verboseWriter.println(sides[0] + " is now " + getVariable(sides[0]));
+                            String varName = sides[0].trim(); //remove spaces
+                            if(commands.containsKey(varName)){
+                                errorWriter.println(varName + " is a reserved word and can't be used as variable name.");
+                                if(stopOnError) return Status.ERROR;
+                            }else {
+                                setVariable(varName, Expression.parse(sides[1], verboseWriter), verboseWriter);
+                                verboseWriter.println(varName + " is now " + getVariable(varName));
+                            }
                         }else {
-                            reportCmdError("=", "only one = operator per command is allowed");
+                            errorWriter.println("Only one = operator per command is allowed.");
+                            if(stopOnError) return Status.ERROR;
                         }
                     }else //otherwise, it's parsed as an expression
                         outputWriter.println(Expression.parse(command, verboseWriter).eval(this, verboseWriter));
                 }
             }catch(ExpressionException ex){
                 errorWriter.println(ex.getMessage());
+                if(stopOnError) return Status.ERROR;
             }
         }
-        return true;
+        return Status.INPUT_END;
     }
 
 }

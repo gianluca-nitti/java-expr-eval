@@ -2,21 +2,11 @@ package com.github.gianlucanitti.javaexpreval;
 
 import java.io.Writer;
 import java.io.PrintWriter;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 
 /**
  * Represents a generic arithmetical expression.
  */
 public abstract class Expression{
-
-  /**
-   * This class represents an OutputStream that discards anything that gets written to it. Like /dev/null but cross-platform.
-   */
-  private static class NullOutputStream extends OutputStream{
-    @Override
-    public void write(int b){}
-  }
 
   /**
    * Returns a string representation of the expression.
@@ -81,7 +71,7 @@ public abstract class Expression{
    * @return The computed value of this expression.
    */
   public final double eval(ExpressionContext context) throws UndefinedException{
-    return eval(context, new OutputStreamWriter(new NullOutputStream()));
+    return eval(context, NullOutputStream.getWriter());
   }
 
   /**
@@ -110,7 +100,7 @@ public abstract class Expression{
    * @throws ExpressionException if the parsing process failed, i.e. the given string isn't a well-formed expression.
    */
   public static final Expression parse(String expr) throws ExpressionException{
-    return parse(expr, new OutputStreamWriter(new NullOutputStream()));
+    return parse(expr, NullOutputStream.getWriter());
   }
 
   /**
