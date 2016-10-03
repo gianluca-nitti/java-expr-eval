@@ -37,12 +37,20 @@ public class ExpressionListTest extends TestCase{
       expList.addItem(new ConstExpression(3));
       expList.addOperator('*');
       expList.addItem(new ConstExpression(2));
-      //expList.addOperator('^');
-      //expList.addItem(new BinaryOpExpression(new ConstExpression(3), '-', new ConstExpression(1)));
-      //assertEquals(121.0, expList.simplify().eval());
-      assertEquals(11.0, expList.simplify().eval());
+      expList.addOperator('^');
+      expList.addItem(new BinaryOpExpression(new ConstExpression(3), '+', new ConstExpression(1)));
+      assertEquals(53.0, expList.simplify().eval());
     }catch(Exception ex){
       fail(ex.getMessage());
+    }
+    try{
+      ExpressionList expList = new ExpressionList();
+      expList.addItem(new ConstExpression(1));
+      expList.addOperator('/');
+      expList.simplify();
+      fail("An invalid expression list doesn't throw an exception when simplified.");
+    }catch(Exception ex){
+      assertTrue(ex instanceof ExpressionException);
     }
   }
 

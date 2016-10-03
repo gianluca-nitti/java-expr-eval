@@ -31,7 +31,7 @@ public final class ExpressionList{
    */
   public void addItem(Expression item) throws UnexpectedTokenException{
     if(expectOperator)
-      throw new UnexpectedTokenException(expectOperator);
+      throw new UnexpectedTokenException(expectOperator, false);
     items.add(item);
     expectOperator = true;
   }
@@ -44,7 +44,7 @@ public final class ExpressionList{
    */
   public void addOperator(char op) throws UnexpectedTokenException{
     if(!expectOperator)
-      throw new UnexpectedTokenException(expectOperator);
+      throw new UnexpectedTokenException(expectOperator, false);
     operators.add(op);
     expectOperator = false;
   }
@@ -84,7 +84,9 @@ public final class ExpressionList{
    * @throws EmptyExpressionException if no expression were added.
    * @return An expression equivalent to the list of expressions and operators represented by this object.
    */
-  public Expression simplify() throws InvalidOperatorException, EmptyExpressionException{
+  public Expression simplify() throws InvalidOperatorException, EmptyExpressionException, UnexpectedTokenException{
+    if(!expectOperator) //if true we were expecting an expression, so the expression ends with a binary operator
+      throw new UnexpectedTokenException(expectOperator, true);
     evalOperators('^');
     evalOperators('*', '/');
     evalOperators('+', '-');
