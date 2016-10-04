@@ -8,7 +8,7 @@ public class UnexpectedTokenException extends ExpressionException{
 
   /**
    * Initializes an UnexpectedTokenException according to the specified parameters.
-   * @param operatorExpected If <code>true</code>, the exception will indicate that an operator was found, but an expression was expected;
+   * @param operatorExpected If <code>true</code>, the exception will indicate that an operator was expected but a sub-expression was found.
    * if <code>false</code>, the exception will indicate that a sub-expression was expected, but an operator was found (if <code>endOfExpression == false</code>)
    * or the end of the expression was reached (if <code>endOfExpression == true</code>).
    * @param endOfExpression If <code>true</code>, the exception will indicate that a sub-expression was expected but the end of the expression was reached;

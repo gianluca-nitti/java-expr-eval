@@ -12,7 +12,7 @@ public class ExpressionContext {
     private HashMap<String, Double> variables;
 
     /**
-     * initializes an empty context.
+     * Initializes an empty context.
      */
     public ExpressionContext(){
         variables = new HashMap<String, Double>();
