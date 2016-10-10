@@ -3,7 +3,7 @@ package com.github.gianlucanitti.javaexpreval;
 import java.io.PrintWriter;
 
 /**
- An expression representing a variable. It's value is determined by reading from the expression context.
+ * An expression representing a variable. It's value is determined by reading from the expression context.
  */
 public class VariableExpression extends Expression{
 
