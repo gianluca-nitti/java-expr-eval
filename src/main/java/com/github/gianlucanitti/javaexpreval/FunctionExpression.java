@@ -5,24 +5,22 @@ import java.io.PrintWriter;
 /**
  * An expression representing a function (built-in, like sqrt, log,... or user-defined in the context).
  */
-public class FunctionExpression extends Expression{
+public class FunctionExpression extends NamedSymbolExpression{
 
     public enum BuiltInFunctions{
         SIN, COS, TAN, LOG, SQRT, ABS
     }
 
-    private String funcName;
     private Expression[] args;
 
-    public FunctionExpression(String funcName, Expression ... args){
-        //TODO: check if it's a valid name
-        this.funcName = funcName;
+    public FunctionExpression(String funcName, Expression ... args) throws InvalidSymbolNameException{
+        super(funcName);
         this.args = args;
     }
 
     protected double evalExpr(ExpressionContext context, PrintWriter logWriter) throws UndefinedException {
         //TODO: check argument count
-        switch(BuiltInFunctions.valueOf(funcName.toUpperCase())){
+        switch(BuiltInFunctions.valueOf(getName().toUpperCase())){
             case SIN:
                 return Math.sin(args[0].eval(context, logWriter));
             case COS:
@@ -41,7 +39,7 @@ public class FunctionExpression extends Expression{
     }
 
     public String toString() {
-        String result = funcName + "(";
+        String result = getName() + "(";
         for(Expression x: args)
             result += x.toString() + ",";
         result += ")";

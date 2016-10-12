@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 
 public class FunctionExpressionTest extends TestCase{
 
-    public void testEval() throws UndefinedException{
+    public void testEval() throws ExpressionException{
         assertEquals(4.0, new FunctionExpression("sqrt", new ConstExpression(16)).eval());
     }
 

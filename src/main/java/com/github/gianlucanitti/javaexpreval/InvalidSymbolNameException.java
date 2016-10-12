@@ -1,7 +1,7 @@
 package com.github.gianlucanitti.javaexpreval;
 
 /**
- * This exception is thrown when a user tries to define a symbol (variable) with a name that contains invalid characters.
+ * This exception is thrown when a user tries to define a symbol with a name that contains invalid characters.
  */
 public class InvalidSymbolNameException extends ExpressionException {
 
