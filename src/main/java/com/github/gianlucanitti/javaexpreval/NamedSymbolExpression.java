@@ -20,7 +20,7 @@ public abstract class NamedSymbolExpression extends Expression{
 
     /**
      * Returns the name associated with this expression.
-     * @return The string passed to the {@link NamedSymbolExpression} constructor.
+     * @return The string passed to the {@link #NamedSymbolExpression(String)} constructor.
      */
     public String getName(){
         return symbolName;

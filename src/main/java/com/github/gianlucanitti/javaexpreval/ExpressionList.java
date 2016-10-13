@@ -82,6 +82,7 @@ public final class ExpressionList{
    * Simplifies this list of expression by returning an equivalent expression.
    * @throws InvalidOperatorException if an unknown operator is found.
    * @throws EmptyExpressionException if no expression were added.
+   * @throws UnexpectedTokenException if this list is ending with a binary operator (that has no right operand).
    * @return An expression equivalent to the list of expressions and operators represented by this object.
    */
   public Expression simplify() throws InvalidOperatorException, EmptyExpressionException, UnexpectedTokenException{
