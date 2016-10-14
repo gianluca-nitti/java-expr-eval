@@ -2,6 +2,7 @@ package com.github.gianlucanitti.javaexpreval;
 
 import java.io.Writer;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 /**
  * Represents a generic arithmetical expression.
@@ -23,7 +24,7 @@ public abstract class Expression{
    * the parameter is passed to the underlying calls to {@link Expression#eval(ExpressionContext, PrintWriter)} of the sub-expressions (if any) to properly log each step.
    * @param context The {@link ExpressionContext} to evaluate the expression in.
    * @param logWriter A {@link PrintWriter} to log the steps done.
-   * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (variable) not defined in the context.
+   * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (function or variable) not defined in the context.
    * @return The computed value of this expression.
    */
   protected abstract double evalExpr(ExpressionContext context, PrintWriter logWriter) throws UndefinedException;
@@ -43,7 +44,7 @@ public abstract class Expression{
    * Evaluates this expression and logs the steps done to the specified {@link PrintWriter}.
    * @param context The {@link ExpressionContext} to evaluate the expression in.
    * @param logWriter A {@link PrintWriter} to write the evaluation steps to.
-   * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (variable) not defined in the context.
+   * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (function or variable) not defined in the context.
    * @return The computed value of this expression.
    */
   protected final double eval(ExpressionContext context, PrintWriter logWriter) throws UndefinedException{
@@ -57,7 +58,7 @@ public abstract class Expression{
    * Evaluates this expression and logs the steps done to the specified {@link Writer}.
    * @param context The {@link ExpressionContext} to evaluate the expression in.
    * @param logWriter A {@link Writer} to write the evaluation steps to.
-   * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (variable) not defined in the context.
+   * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (function or variable) not defined in the context.
    * @return The computed value of this expression.
    */
   public final double eval(ExpressionContext context, Writer logWriter) throws UndefinedException{
@@ -67,7 +68,7 @@ public abstract class Expression{
   /**
    * Evaluates this expression in the specified context without logging the steps done.
    * @param context The {@link ExpressionContext} to evaluate the expression in.
-   * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (variable) not defined in the context.
+   * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (function or variable) not defined in the context.
    * @return The computed value of this expression.
    */
   public final double eval(ExpressionContext context) throws UndefinedException{
@@ -77,7 +78,7 @@ public abstract class Expression{
   /**
    * Evaluates this expression in an empty context and logs the steps done to the specified {@link Writer}.
    * @param logWriter A {@link Writer} to write the evaluation steps to.
-   * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (variable) not defined in the context.
+   * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (function or variable) not defined in the context.
    * @return The computed value of this expression.
    */
   public final double eval(Writer logWriter) throws UndefinedException{
@@ -86,7 +87,7 @@ public abstract class Expression{
 
   /**
    * Evaluates this expression in an empty context without logging the steps done.
-   * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (variable) not defined in the context.
+   * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (function or variable) not defined in the context.
    * @return The computed value of this expression.
    */
   public final double eval() throws UndefinedException{
@@ -123,7 +124,7 @@ public abstract class Expression{
    * @return An {@link Expression} object representing the expression given as string.
    * @throws ExpressionException if the parsing process failed, i.e. the given string isn't a well-formed expression.
    */
-  private static final Expression parseRange(String expr, int begin, int end, PrintWriter logWriter) throws ExpressionException{
+  private static Expression parseRange(String expr, int begin, int end, PrintWriter logWriter) throws ExpressionException{
     int i = begin;
     ExpressionList subExpressions = new ExpressionList();
     boolean negate = false;
@@ -146,16 +147,30 @@ public abstract class Expression{
           c = expr.charAt(i);
         }
         itemToAdd = new ConstExpression(Double.parseDouble(number));
-      }else if (VariableExpression.isValidSymbolFirstChar(c)){
-        String varName = "";
-        while(VariableExpression.isValidSymbolChar(c)){
-          varName += c;
+      }else if (NamedSymbolExpression.isValidSymbolFirstChar(c)){
+        String symName = "";
+        while(NamedSymbolExpression.isValidSymbolChar(c)){
+          symName += c;
           i++;
           if(i >= end)
             break;
           c = expr.charAt(i);
         }
-        itemToAdd = new VariableExpression(varName);
+        if(i < end && expr.charAt(i) == '(') { //it's a function
+          int closedIndex = findCloseParenthesis(expr, i);
+          int argBegin = i + 1;
+          int argEnd;
+          ArrayList<Expression> args = new ArrayList<Expression>();
+          do{
+            argEnd = expr.indexOf(',', argBegin);
+            if(argEnd == -1 || argEnd > closedIndex)
+              argEnd = closedIndex;
+            args.add(parseRange(expr, argBegin, argEnd, logWriter));
+          }while(argEnd != closedIndex);
+          itemToAdd = new FunctionExpression(symName, args.toArray(new Expression[args.size()]));
+          i = closedIndex + 1;
+        }else //it's a variable
+          itemToAdd = new VariableExpression(symName);
       }else if(c == '('){
         int closedIndex = findCloseParenthesis(expr, i);
         itemToAdd = parseRange(expr, i + 1, closedIndex, logWriter);
@@ -192,7 +207,7 @@ public abstract class Expression{
    * @return The index of the corresponding closed parenthesis.
    * @throws MismatchedParenthesisException if the numbers of opened and closed parenthesis in the string after <code>openIndex</code> don't match.
    */
-  private static final int findCloseParenthesis(String s, int openIndex) throws MismatchedParenthesisException{
+  private static int findCloseParenthesis(String s, int openIndex) throws MismatchedParenthesisException{
     int openedCount = 1;
     for(int i = openIndex + 1; i < s.length(); i++){
       if(s.charAt(i) == '(')
