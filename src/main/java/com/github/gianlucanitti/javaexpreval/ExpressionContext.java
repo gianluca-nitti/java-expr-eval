@@ -2,6 +2,7 @@ package com.github.gianlucanitti.javaexpreval;
 
 import java.io.Writer;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -10,12 +11,15 @@ import java.util.Map;
 public class ExpressionContext {
 
     private HashMap<String, Double> variables;
+    private HashSet<Function> functions;
 
     /**
      * Initializes an empty context.
      */
     public ExpressionContext(){
         variables = new HashMap<String, Double>();
+        functions = new HashSet<Function>();
+        functions.addAll(BuiltInFunctions.getList());
     }
 
     /**
@@ -74,11 +78,27 @@ public class ExpressionContext {
         variables.remove(varName);
     }
 
+    public void setFunction(Function f){
+        functions.add(f); //TODO check for duplicates (define getHashCode in Function)
+    }
+
+    public void setFunction(String name, Expression expr, String ... argNames){
+        setFunction(new CustomFunction(name, expr, argNames));
+    }
+
+    public Function getFunction(String name, int argCount) throws UndefinedException{
+        for(Function f: functions)
+            if(f.getArgCount() == argCount && f.getName().equals(name))
+                return f;
+        throw new UndefinedException(name, argCount);
+    }
+
     /**
-     * Clears this context wiping all the defined variables.
+     * Clears this context wiping all the defined variables and functions.
      */
     public void clear(){
         variables.clear();
+        functions.clear();
     }
 
     /**

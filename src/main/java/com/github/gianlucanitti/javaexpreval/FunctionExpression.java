@@ -7,10 +7,6 @@ import java.io.PrintWriter;
  */
 public class FunctionExpression extends NamedSymbolExpression{
 
-    public enum BuiltInFunctions{
-        SIN, COS, TAN, LOG, SQRT, ABS
-    }
-
     private Expression[] args;
 
     public FunctionExpression(String funcName, Expression ... args) throws InvalidSymbolNameException{
@@ -19,23 +15,7 @@ public class FunctionExpression extends NamedSymbolExpression{
     }
 
     protected double evalExpr(ExpressionContext context, PrintWriter logWriter) throws UndefinedException {
-        //TODO: check argument count
-        switch(BuiltInFunctions.valueOf(getName().toUpperCase())){
-            case SIN:
-                return Math.sin(args[0].eval(context, logWriter));
-            case COS:
-                return Math.cos(args[0].eval(context, logWriter));
-            case TAN:
-                return Math.tan(args[0].eval(context, logWriter));
-            case LOG:
-                return Math.log(args[0].eval(context, logWriter));
-            case SQRT:
-                return Math.sqrt(args[0].eval(context, logWriter));
-            case ABS:
-                return Math.abs(args[0].eval(context, logWriter));
-            default:
-                return 0; //TODO: check if it's a custom function defined in context
-        }
+        return context.getFunction(getName(), args.length).eval(args, context, logWriter);
     }
 
     public String toString() {
