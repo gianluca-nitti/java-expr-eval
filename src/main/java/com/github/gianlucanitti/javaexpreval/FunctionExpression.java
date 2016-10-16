@@ -14,10 +14,15 @@ public class FunctionExpression extends NamedSymbolExpression{
         this.args = args;
     }
 
+    @Override
     protected double evalExpr(ExpressionContext context, PrintWriter logWriter) throws UndefinedException {
-        return context.getFunction(getName(), args.length).eval(args, context, logWriter);
+        double[] evaluatedArgs = new double[args.length];
+        for(int i = 0; i < args.length; i++)
+            evaluatedArgs[i] = args[i].eval(context, logWriter);
+        return context.getFunction(getName(), args.length).eval(evaluatedArgs, context, logWriter);
     }
 
+    @Override
     public String toString() {
         String result = getName() + "(";
         for(Expression x: args)

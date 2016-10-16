@@ -166,6 +166,7 @@ public abstract class Expression{
             if(argEnd == -1 || argEnd > closedIndex)
               argEnd = closedIndex;
             args.add(parseRange(expr, argBegin, argEnd, logWriter));
+            argBegin = argEnd + 1;
           }while(argEnd != closedIndex);
           itemToAdd = new FunctionExpression(symName, args.toArray(new Expression[args.size()]));
           i = closedIndex + 1;
