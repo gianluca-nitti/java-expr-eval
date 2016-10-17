@@ -1,7 +1,5 @@
 package com.github.gianlucanitti.javaexpreval;
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
-
 import java.io.Writer;
 import java.io.PrintWriter;
 import java.util.ArrayList;
