@@ -114,6 +114,9 @@ public class BuiltInFunctions {
         }
     }
 
+    /**
+     * @return An {@link ArrayList} of the built-in functions.
+     */
     public static ArrayList<BuiltInFunction> getList(){
         ArrayList<BuiltInFunction> result = new ArrayList<BuiltInFunction>();
         result.add(new SinFunction());

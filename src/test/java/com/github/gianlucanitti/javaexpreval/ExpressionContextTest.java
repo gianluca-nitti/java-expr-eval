@@ -2,6 +2,8 @@ package com.github.gianlucanitti.javaexpreval;
 
 import junit.framework.TestCase;
 
+import java.io.PrintWriter;
+
 public class ExpressionContextTest extends TestCase{
 
     public void testGetSetVariable(){
@@ -86,6 +88,17 @@ public class ExpressionContextTest extends TestCase{
             fail("A variable is still accessible after clear.");
         }catch(UndefinedException ex){
             //ok (context has been cleared)
+        }
+    }
+
+    public void testGetSetFunction(){
+        ExpressionContext c = new ExpressionContext();
+        try {
+            //c.setFunction("someFunction", new ConstExpression(1));
+            c.setFunction("someFunction", new ConstExpression(2)); //must replace the previous (same name and 0 arguments)
+            assertEquals(2.0, c.getFunction("someFunction", 0).eval(new double[0], c, new PrintWriter(NullOutputStream.getWriter())));
+        }catch(ExpressionException ex){
+            fail(ex.getMessage());
         }
     }
 

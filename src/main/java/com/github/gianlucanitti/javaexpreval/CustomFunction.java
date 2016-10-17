@@ -41,7 +41,8 @@ public class CustomFunction extends Function {
      */
     @Override
     protected double evalFunction(double[] args, ExpressionContext context, PrintWriter logWriter) throws UndefinedException{
-        return 0; //TODO
+        expr.bindVariables(argNames, args);
+        return expr.eval(context, logWriter);
     }
 
 }

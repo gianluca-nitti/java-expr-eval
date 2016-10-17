@@ -18,6 +18,14 @@ public final class ConstExpression extends Expression{
   }
 
   /**
+   * @return An empty array of {@link Expression}s.
+   */
+  @Override
+  public Expression[] getSubExpressions(){
+    return new Expression[0];
+  }
+
+  /**
    * Returns the message to log when this expression is evaluated.
    * This overrides {@link Expression#getEvalMsg(double val)} to avoid pointless log entries like "0.0 evaluates to 0.0".
    * @return an empty string.

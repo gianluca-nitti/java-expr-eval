@@ -18,8 +18,17 @@ public class NegatedExpression extends Expression {
     }
 
     /**
+     * @return The argument passed to the {@link #NegatedExpression(Expression)} constructor.
+     */
+    @Override
+    public Expression[] getSubExpressions(){
+        return new Expression[]{subExpression};
+    }
+
+    /**
      * {@inheritDoc}
      */
+    @Override
     protected double evalExpr(ExpressionContext context, PrintWriter logWriter) throws UndefinedException {
         return -subExpression.eval(context, logWriter);
     }
@@ -28,6 +37,7 @@ public class NegatedExpression extends Expression {
      * Returns a string representation of this expression.
      * @return The expression specified in the call to the {@link #NegatedExpression(Expression)} constructor enclosed in parenthesis and prepended with the minus sign.
      */
+    @Override
     public String toString() {
         return "(-(" + subExpression.toString() + "))";
     }

@@ -1,5 +1,7 @@
 package com.github.gianlucanitti.javaexpreval;
 
+import com.sun.javaws.exceptions.InvalidArgumentException;
+
 import java.io.Writer;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -16,6 +18,12 @@ public abstract class Expression{
    */
   @Override
   public abstract String toString();
+
+  /**
+   * Returns the sub-expressions underlying this expression. This is used to recursively walk a tree of expressions, for example to perform variable substitution.
+   * @return An array of the {@link Expression}s underlying this one (if any; an empty array of Expressions otherwise).
+   */
+  public abstract Expression[] getSubExpressions();
 
   /**
    * Evaluates this expression. This is used internally by the library to correctly manage logging of each step.
@@ -38,6 +46,24 @@ public abstract class Expression{
    */
   public String getEvalMsg(double val){
     return toString() + " evaluates to " + val + System.getProperty("line.separator");
+  }
+
+  /**
+   * Binds the variables with the specified names to the specified values, according to their order.
+   * @param varNames An array containing the names of the variables to bind.
+   * @param values An array containing the values to bind the variables to.
+   * @throws IllegalArgumentException if <code>varNames</code> and <code>values</code> have different lengths.
+   */
+  public void bindVariables(String[] varNames, double[] values){
+    if(varNames.length != values.length)
+      throw new IllegalArgumentException();
+    for(Expression var: getSubExpressions())
+      if(var instanceof VariableExpression) {
+        for (int i = 0; i < varNames.length; i++)
+          if (((VariableExpression) var).getName().equals(varNames[i]))
+            ((VariableExpression) var).bind(new ConstExpression(values[i]));
+      }else
+        var.bindVariables(varNames, values);
   }
 
   /**

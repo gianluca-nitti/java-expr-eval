@@ -39,6 +39,14 @@ public final class BinaryOpExpression extends Expression{
   }
 
   /**
+   * @return The two operands passed to the {@link #BinaryOpExpression(Expression, char, Expression)} constructor.
+   */
+  @Override
+  public Expression[] getSubExpressions(){
+    return new Expression[]{left, right};
+  }
+
+  /**
    * {@inheritDoc}
    */
   @Override
