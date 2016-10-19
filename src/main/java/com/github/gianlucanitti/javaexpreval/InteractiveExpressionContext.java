@@ -189,7 +189,7 @@ public class InteractiveExpressionContext extends ExpressionContext {
                             break;
                         case CLEAR:
                             clear();
-                            verboseWriter.println("All variables have been deleted.");
+                            verboseWriter.println("All variables and functions have been deleted.");
                             break;
                         case HELP:
                             PrintWriter helpWriter = helpVerbose ? verboseWriter : outputWriter;

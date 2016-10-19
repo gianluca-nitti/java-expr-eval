@@ -59,4 +59,33 @@ public abstract class Function {
      */
     protected abstract double evalFunction(double[] args, ExpressionContext context, PrintWriter logWriter) throws UndefinedException;
 
+    /**
+     * Compares this function with another one.
+     * @param other The object (should be a {@link Function}) to compare to.
+     * @return <code>true</code> if <code>other</code> is a {@link Function} with the same name and number of arguments of this one, <code>false</code> otherwise.
+     */
+    @Override
+    public boolean equals(Object other){
+        if(!(other instanceof Function))
+            return false;
+        Function otherFun = (Function)other;
+        return name.equals(otherFun.name) && getArgCount() == ((Function) other).getArgCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode(){
+        return name.hashCode() ^ getArgCount();
+    }
+
+    /**
+     * @return A string representation of this {@link Function} that specifies the name and number of arguments.
+     */
+    @Override
+    public String toString(){
+        return name + "(" + getArgCount() + " arguments)";
+    }
+
 }

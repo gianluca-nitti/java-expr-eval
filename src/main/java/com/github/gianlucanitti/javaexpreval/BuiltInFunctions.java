@@ -25,7 +25,7 @@ public class BuiltInFunctions {
         }
 
         /**
-         * @return The number of arguments expected by this function (the second parameter passed to the {@link #BuiltInFunction(String, int)} constructor).
+         * @return The number of arguments expected by this function (the second parameter passed to the constructor).
          */
         @Override
         public int getArgCount() {
@@ -33,10 +33,14 @@ public class BuiltInFunctions {
         }
 
         /**
-         * {@inheritDoc}
+         * Evaluates this function for the specified arguments.
+         * @param args The values to pass to the function.
+         * @param context The context this function must be evaluated into (not used here).
+         * @param logWriter The {@link java.io.Writer} to write evaluation steps onto (not used here).
+         * @return The value returned from {@link #eval(double[])} with the same <code>args</code>.
          */
         @Override
-        protected double evalFunction(double[] args, ExpressionContext context, PrintWriter logWriter) throws UndefinedException{
+        protected double evalFunction(double[] args, ExpressionContext context, PrintWriter logWriter){
             return eval(args);
         }
 
@@ -48,68 +52,68 @@ public class BuiltInFunctions {
         protected abstract double eval(double[] args);
     }
 
-    public static class SinFunction extends BuiltInFunction{
-        public SinFunction() {
+    private static class SinFunction extends BuiltInFunction{
+        private SinFunction() {
             super("sin", 1);
         }
 
         @Override
-        public double eval(double[] args) {
+        protected double eval(double[] args) {
             return Math.sin(args[0]);
         }
     }
 
-    public static class CosFunction extends BuiltInFunction{
-        public CosFunction() {
+    private static class CosFunction extends BuiltInFunction{
+        private CosFunction() {
             super("cos", 1);
         }
 
         @Override
-        public double eval(double[] args) {
+        protected double eval(double[] args) {
             return Math.cos(args[0]);
         }
     }
 
-    public static class TanFunction extends BuiltInFunction{
-        public TanFunction() {
+    private static class TanFunction extends BuiltInFunction{
+        private TanFunction() {
             super("tan", 1);
         }
 
         @Override
-        public double eval(double[] args) {
+        protected double eval(double[] args) {
             return Math.tan(args[0]);
         }
     }
 
-    public static class LogFunction extends BuiltInFunction{
-        public LogFunction() {
+    private static class LogFunction extends BuiltInFunction{
+        private LogFunction() {
             super("log", 1);
         }
 
         @Override
-        public double eval(double[] args) {
+        protected double eval(double[] args) {
             return Math.log(args[0]);
         }
     }
 
-    public static class SqrtFunction extends BuiltInFunction{
-        public SqrtFunction() {
+    private static class SqrtFunction extends BuiltInFunction{
+        private SqrtFunction() {
             super("sqrt", 1);
         }
 
         @Override
-        public double eval(double[] args) {
+        protected double eval(double[] args) {
             return Math.sqrt(args[0]);
         }
     }
 
-    public static class AbsFunction extends BuiltInFunction{
-        public AbsFunction() {
+    private static class AbsFunction extends BuiltInFunction{
+        private AbsFunction() {
             super("abs", 1);
         }
 
         @Override
-        public double eval(double[] args) {
+        protected double eval(double[] args) {
             return Math.abs(args[0]);
         }
     }

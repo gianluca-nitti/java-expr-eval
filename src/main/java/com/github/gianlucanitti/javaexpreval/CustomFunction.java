@@ -32,12 +32,17 @@ public class CustomFunction extends Function {
     }
 
     /**
-     * TODO
+     * Evaluates this function for the specified arguments in the specified context.
+     * It takes the {@link Expression} passed as 2nd parameter to the {@link #CustomFunction(String, Expression, String...)} constructor
+     * and binds the variables that have names that match the argument names passed to the constructor to the respective values specified
+     * in the <code>args</code> array, then evaluates it.
      * @param args The values to pass to the function.
      * @param context The context this function must be evaluated into.
      * @param logWriter The {@link java.io.Writer} to write evaluation steps onto.
      * @return The result of the evaluation.
-     * @throws UndefinedException TODO
+     * @throws UndefinedException if the {@link Expression} passed to the {@link #CustomFunction(String, Expression, String...)}
+     * constructor can't be evaluated because it contains symbol not defined in the specified <code>context</code>.
+     * @throws IllegalArgumentException if the specified <code>args</code> and the number of argument names passed to the constructor have different lengths.
      */
     @Override
     protected double evalFunction(double[] args, ExpressionContext context, PrintWriter logWriter) throws UndefinedException{

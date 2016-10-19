@@ -78,19 +78,56 @@ public class ExpressionContext {
         variables.remove(varName);
     }
 
-    public void setFunction(Function f){
-        functions.add(f); //TODO check for duplicates (define getHashCode in Function)
+    /**
+     * Adds the specified {@link Function} to this context.
+     * @param f The function to add.
+     */
+    public void setFunction(Function f) {
+        if (!functions.add(f)) { //if a function with the same signature is already present, add will return false...
+            //... so the old function is removed (the new one can be used as key because they have the same name and number of arguments, so they are equal according to Function.equals(Object))
+            functions.remove(f);
+            functions.add(f); //then the new one is added, replacing the previous
+        }
     }
 
+    /**
+     * Initializes a new {@link CustomFunction} and adds it to this context.
+     * Arguments are the same of the {@link CustomFunction#CustomFunction(String, Expression, String...)} constructor.
+     * @param name The name for the new function.
+     * @param expr The expression that defines this function; can contain variables with the names specified in argNames,
+     * that will be replaced by the arguments values when this is evaluated.
+     * @param argNames The names of the arguments of this function.
+     */
     public void setFunction(String name, Expression expr, String ... argNames){
         setFunction(new CustomFunction(name, expr, argNames));
     }
 
+    /**
+     * Returns, if existing in this context, the function with the specified name and number of arguments.
+     * @param name The name of the function.
+     * @param argCount The number of arguments that the function must accept.
+     * @return The requested {@link Function}, if defined in this context.
+     * @throws UndefinedException if the requested function is not defined in this context.
+     */
     public Function getFunction(String name, int argCount) throws UndefinedException{
         for(Function f: functions)
             if(f.getArgCount() == argCount && f.getName().equals(name))
                 return f;
         throw new UndefinedException(name, argCount);
+    }
+
+    /**
+     * Deletes the specified function definition from this context, if existing.
+     * @param name The name of the function to remove.
+     * @param argCount The number of arguments of the function to remove.
+     */
+    public void delFunction(String name, int argCount){
+        Function toRemove = null;
+        for(Function f: functions)
+            if(f.getArgCount() == argCount && f.getName().equals(name))
+                toRemove = f;
+        if(toRemove != null)
+            functions.remove(toRemove);
     }
 
     /**
@@ -109,6 +146,8 @@ public class ExpressionContext {
         String result = "";
         for(Map.Entry<String, Double> var: variables.entrySet())
             result += var.getKey() + "=" + var.getValue() + ", ";
+        for(Function f: functions)
+            result += f.toString() + ", ";
         return result.length() == 0 ? result : result.substring(0, result.length() - 2);
     }
 

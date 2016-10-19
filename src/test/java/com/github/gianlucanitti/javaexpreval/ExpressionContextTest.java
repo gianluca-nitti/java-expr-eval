@@ -79,6 +79,7 @@ public class ExpressionContextTest extends TestCase{
         ExpressionContext c = new ExpressionContext();
         try {
             c.setVariable("someVar", 1);
+            c.setFunction("some_function", new VariableExpression("x"), "x");
         }catch(InvalidSymbolNameException ex){
             fail(ex.getMessage());
         }
@@ -87,18 +88,40 @@ public class ExpressionContextTest extends TestCase{
             c.getVariable("someVar");
             fail("A variable is still accessible after clear.");
         }catch(UndefinedException ex){
-            //ok (context has been cleared)
+            //ok (variable has been deleted)
+        }
+        try{
+            c.getFunction("some_function", 1);
+            fail("A function is still accessible after clear.");
+        }catch(UndefinedException ex){
+            //ok (function has been deleted)
         }
     }
 
     public void testGetSetFunction(){
         ExpressionContext c = new ExpressionContext();
+        PrintWriter nullWriter = new PrintWriter(NullOutputStream.getWriter());
         try {
-            //c.setFunction("someFunction", new ConstExpression(1));
-            c.setFunction("someFunction", new ConstExpression(2)); //must replace the previous (same name and 0 arguments)
-            assertEquals(2.0, c.getFunction("someFunction", 0).eval(new double[0], c, new PrintWriter(NullOutputStream.getWriter())));
+            c.setFunction("someFunction", new ConstExpression(1), "x");
+            c.setFunction("someFunction", new BinaryOpExpression(new VariableExpression("arg1"), '+', new VariableExpression("arg2")), "arg1", "arg2");
+            //must replace the first one (same name and number of arguments)
+            c.setFunction("someFunction", new BinaryOpExpression(new ConstExpression(2), '^', new VariableExpression("argument")), "argument");
+            assertEquals(8.0, c.getFunction("someFunction", 1).eval(new double[]{3}, c, nullWriter));
+            assertEquals(10.0, c.getFunction("someFunction", 2).eval(new double[]{4, 6}, c, nullWriter));
         }catch(ExpressionException ex){
             fail(ex.getMessage());
+        }
+    }
+
+    public void testDelFunction(){
+        ExpressionContext c = new ExpressionContext();
+        c.setFunction("someFunction", new ConstExpression(1), "arg");
+        c.delFunction("someFunction", 1);
+        try{
+            c.getFunction("someFunction", 1);
+            fail("A deleted function is still accessible.");
+        }catch(UndefinedException ex){
+            //ok
         }
     }
 
