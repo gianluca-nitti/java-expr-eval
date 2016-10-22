@@ -97,8 +97,9 @@ public class ExpressionContext {
      * @param expr The expression that defines this function; can contain variables with the names specified in argNames,
      * that will be replaced by the arguments values when this is evaluated.
      * @param argNames The names of the arguments of this function.
+     * @throws InvalidSymbolNameException if <code>name</code> or one of the items in <code>argNames</code> aren't valid symbol names (see {@link NamedSymbolExpression}).
      */
-    public void setFunction(String name, Expression expr, String ... argNames){
+    public void setFunction(String name, Expression expr, String ... argNames) throws InvalidSymbolNameException {
         setFunction(new CustomFunction(name, expr, argNames));
     }
 

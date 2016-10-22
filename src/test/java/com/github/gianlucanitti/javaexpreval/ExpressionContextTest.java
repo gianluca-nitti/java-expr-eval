@@ -113,7 +113,7 @@ public class ExpressionContextTest extends TestCase{
         }
     }
 
-    public void testDelFunction(){
+    public void testDelFunction() throws InvalidSymbolNameException{
         ExpressionContext c = new ExpressionContext();
         c.setFunction("someFunction", new ConstExpression(1), "arg");
         c.delFunction("someFunction", 1);

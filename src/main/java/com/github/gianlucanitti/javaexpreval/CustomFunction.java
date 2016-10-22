@@ -16,9 +16,12 @@ public class CustomFunction extends Function {
      * @param expr The expression that defines this function; can contain variables with the names specified in argNames,
      * that will be replaced by the arguments values when this is evaluated.
      * @param argNames The names of the arguments of this function.
+     * @throws InvalidSymbolNameException if <code>name</code> or one of the items in <code>argNames</code> aren't valid symbol names (see {@link NamedSymbolExpression}).
      */
-    public CustomFunction(String name, Expression expr, String ... argNames) {
+    public CustomFunction(String name, Expression expr, String ... argNames) throws InvalidSymbolNameException {
         super(name);
+        for(String s: argNames)
+            NamedSymbolExpression.assertValidSymbolName(s);
         this.argNames = argNames;
         this.expr = expr;
     }

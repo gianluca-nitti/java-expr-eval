@@ -2,6 +2,8 @@ package com.github.gianlucanitti.javaexpreval;
 
         import java.io.*;
         import java.util.HashMap;
+        import java.util.regex.Matcher;
+        import java.util.regex.Pattern;
 
 /**
  * An {@link ExpressionContext} with additional methods to interact with the user through {@link Reader}s (input) and {@link Writer}s (output).
@@ -204,19 +206,37 @@ public class InteractiveExpressionContext extends ExpressionContext {
                             return Status.EXIT;
                     }
                 else{ //if the string doesn't begin with a known command
-                    if (command.contains("=")) { //if it contains an =, then it's considered a variable assignment
+                    if (command.contains("=")) { //if it contains an =, then it's considered an assignment
                         String[] sides = command.split("=");
-                        if(sides.length == 1){ //an assignment with nothing on the right of the equality symbol (e.g. "someVar=") deletes the variable
-                            delVariable(sides[0]);
-                            verboseWriter.println(sides[0] + " has been deleted.");
+                        if(sides.length == 1){ //an assignment with nothing on the right of the equality symbol (e.g. "someVar=" or "someFun(1)=") deletes the variable/function (if function, the number of arguments must be specified)
+                            Pattern pattern = Pattern.compile("^(.*?)(?:\\((\\d*)\\))?$");
+                            Matcher matcher = pattern.matcher(sides[0].trim()); //remove spaces and parse with regex
+                            if(!matcher.matches())
+                                errorWriter.println("Incorrect syntax. To delete a function, the number of arguments must be specified (e.g. \"fun(2)=\" to delete \"fun(x, y)\").");
+                            else {
+                                if (matcher.group(2) == null) //no arguments, so it's a variable deletion
+                                    delVariable(matcher.group(1));
+                                else
+                                    delFunction(matcher.group(1), Integer.parseInt(matcher.group(2)));
+                                verboseWriter.println(sides[0] + " has been deleted.");
+                            }
                         }else if (sides.length == 2) {
-                            String varName = sides[0].trim(); //remove spaces
-                            if(commands.containsKey(varName)){
-                                errorWriter.println(varName + " is a reserved word and can't be used as variable name.");
+                            Pattern pattern = Pattern.compile("^(.*?)(?:\\((.*)\\))?$");
+                            Matcher matcher = pattern.matcher(sides[0].trim()); //remove spaces and parse with regex
+                            matcher.matches();
+                            String symName = matcher.group(1);
+                            if(commands.containsKey(symName)){
+                                errorWriter.println(symName + " is a reserved word and can't be used as symbol name name.");
                                 if(stopOnError) return Status.ERROR;
                             }else {
-                                setVariable(varName, Expression.parse(sides[1], verboseWriter), verboseWriter);
-                                verboseWriter.println(varName + " is now " + getVariable(varName));
+                                Expression expr = Expression.parse(sides[1], verboseWriter);
+                                if(matcher.group(2) == null) { //no arguments, so it's a variable definition
+                                    setVariable(symName, expr, verboseWriter);
+                                    verboseWriter.println(symName + " is now " + getVariable(symName));
+                                }else { //argument names are specified, so it's a function definition
+                                    setFunction(symName, expr, matcher.group(2).replace(" ", "").split(","));
+                                    verboseWriter.println(matcher.group(0) + " is now defined as " + expr.toString());
+                                }
                             }
                         }else {
                             errorWriter.println("Only one = operator per command is allowed.");

@@ -12,8 +12,10 @@ public abstract class Function {
     /**
      * Initializes an instance of the Function class representing a function with the specified name.
      * @param name The name of the function; in an expression, a function is called with the syntax name(arg1, arg2,...argN).
+     * @throws InvalidSymbolNameException if <code>name</code> isn't a valid symbol name (see {@link NamedSymbolExpression}).
      */
-    public Function(String name) {
+    public Function(String name) throws InvalidSymbolNameException{
+        NamedSymbolExpression.assertValidSymbolName(name);
         this.name = name;
     }
 

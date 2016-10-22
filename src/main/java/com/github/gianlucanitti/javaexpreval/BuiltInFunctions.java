@@ -18,8 +18,9 @@ public class BuiltInFunctions {
          * Initializes a new BuiltInFunction with the specified name and number of arguments.
          * @param name The name of this function.
          * @param argCount The number of arguments this function is defined for.
+         * @throws InvalidSymbolNameException if <code>name</code> isn't a valid symbol name (see {@link NamedSymbolExpression}).
          */
-        public BuiltInFunction(String name, int argCount) {
+        public BuiltInFunction(String name, int argCount) throws InvalidSymbolNameException {
             super(name);
             this.argCount = argCount;
         }
@@ -53,7 +54,7 @@ public class BuiltInFunctions {
     }
 
     private static class SinFunction extends BuiltInFunction{
-        private SinFunction() {
+        private SinFunction() throws InvalidSymbolNameException {
             super("sin", 1);
         }
 
@@ -64,7 +65,7 @@ public class BuiltInFunctions {
     }
 
     private static class CosFunction extends BuiltInFunction{
-        private CosFunction() {
+        private CosFunction() throws InvalidSymbolNameException {
             super("cos", 1);
         }
 
@@ -75,7 +76,7 @@ public class BuiltInFunctions {
     }
 
     private static class TanFunction extends BuiltInFunction{
-        private TanFunction() {
+        private TanFunction() throws InvalidSymbolNameException {
             super("tan", 1);
         }
 
@@ -86,7 +87,7 @@ public class BuiltInFunctions {
     }
 
     private static class LogFunction extends BuiltInFunction{
-        private LogFunction() {
+        private LogFunction() throws InvalidSymbolNameException {
             super("log", 1);
         }
 
@@ -97,7 +98,7 @@ public class BuiltInFunctions {
     }
 
     private static class SqrtFunction extends BuiltInFunction{
-        private SqrtFunction() {
+        private SqrtFunction() throws InvalidSymbolNameException {
             super("sqrt", 1);
         }
 
@@ -108,7 +109,7 @@ public class BuiltInFunctions {
     }
 
     private static class AbsFunction extends BuiltInFunction{
-        private AbsFunction() {
+        private AbsFunction() throws InvalidSymbolNameException {
             super("abs", 1);
         }
 
@@ -123,12 +124,14 @@ public class BuiltInFunctions {
      */
     public static ArrayList<BuiltInFunction> getList(){
         ArrayList<BuiltInFunction> result = new ArrayList<BuiltInFunction>();
-        result.add(new SinFunction());
-        result.add(new CosFunction());
-        result.add(new TanFunction());
-        result.add(new LogFunction());
-        result.add(new SqrtFunction());
-        result.add(new AbsFunction());
+        try {
+            result.add(new SinFunction());
+            result.add(new CosFunction());
+            result.add(new TanFunction());
+            result.add(new LogFunction());
+            result.add(new SqrtFunction());
+            result.add(new AbsFunction());
+        }catch(InvalidSymbolNameException ex){}
         return result;
     }
 
