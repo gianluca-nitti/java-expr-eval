@@ -216,7 +216,7 @@ public class InteractiveExpressionContext extends ExpressionContext {
                             else {
                                 if (matcher.group(2) == null) //no arguments, so it's a variable deletion
                                     delVariable(matcher.group(1));
-                                else
+                                else //argument number is specified, so it's a function deletion
                                     delFunction(matcher.group(1), Integer.parseInt(matcher.group(2)));
                                 verboseWriter.println(sides[0] + " has been deleted.");
                             }
@@ -229,9 +229,12 @@ public class InteractiveExpressionContext extends ExpressionContext {
                                 errorWriter.println(symName + " is a reserved word and can't be used as symbol name name.");
                                 if(stopOnError) return Status.ERROR;
                             }else {
+                                boolean readOnly;
+                                if(readOnly = symName.startsWith("readonly ")) //this intentionally assigns readOnly (not an equality condition typo)
+                                    symName = symName.substring("readonly ".length());
                                 Expression expr = Expression.parse(sides[1], verboseWriter);
                                 if(matcher.group(2) == null) { //no arguments, so it's a variable definition
-                                    setVariable(symName, expr, verboseWriter);
+                                    setVariable(symName, readOnly, expr, verboseWriter);
                                     verboseWriter.println(symName + " is now " + getVariable(symName));
                                 }else { //argument names are specified, so it's a function definition
                                     setFunction(symName, expr, matcher.group(2).replace(" ", "").split(","));

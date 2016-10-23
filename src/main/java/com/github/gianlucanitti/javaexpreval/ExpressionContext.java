@@ -10,14 +10,29 @@ import java.util.Map;
  */
 public class ExpressionContext {
 
-    private HashMap<String, Double> variables;
+    private class VariableValue{
+        private double value;
+        private boolean readOnly;
+
+        private VariableValue(double value, boolean readOnly) {
+            this.value = value;
+            this.readOnly = readOnly;
+        }
+
+        @Override
+        public String toString(){
+            return (readOnly ? "const " : "") + value;
+        }
+    }
+
+    private HashMap<String, VariableValue> variables;
     private HashSet<Function> functions;
 
     /**
      * Initializes an empty context.
      */
     public ExpressionContext(){
-        variables = new HashMap<String, Double>();
+        variables = new HashMap<String, VariableValue>();
         functions = new HashSet<Function>();
         functions.addAll(BuiltInFunctions.getList());
     }
@@ -31,43 +46,64 @@ public class ExpressionContext {
     public double getVariable(String varName) throws UndefinedException{
         if(!variables.containsKey(varName))
             throw new UndefinedException(varName);
-        return variables.get(varName);
+        return variables.get(varName).value;
     }
 
     /**
-     * Binds the specified variable name to the specified value.
+     * Binds the specified variable name to the specified value, flagging the variable as read-only of specified.
      * If a variable with the same name is already defined, it's value is replaced.
      * @param varName The name of the variable to add/edit.
      * @param value The value to assign to the variable.
+     * @param readOnly Whether this variable must be read-only or it can be redefined later.
      * @throws InvalidSymbolNameException if <code>varName</code> isn't a valid symbol name.
+     * @throws ReadonlyException if the variable can't be set because it was previously defined as read-only.
      */
-    public void setVariable(String varName, double value) throws InvalidSymbolNameException{
+    public void setVariable(String varName, boolean readOnly, double value) throws ExpressionException{
         VariableExpression.assertValidSymbolName(varName);
-        variables.put(varName, value);
+        if(variables.containsKey(varName) && variables.get(varName).readOnly)
+            throw new ReadonlyException(varName, false);
+        else
+            variables.put(varName, new VariableValue(value, readOnly));
+    }
+
+    /**
+     * Binds the specified variable name to the specified value without flagging it as read-only (it can be redefined later).
+     * Wrapper for {@link #setVariable(String, boolean, double)} with <code>false</code> as 2nd argument.
+     * @param varName The name of the variable to add/edit.
+     * @param value The value to assign to the variable.
+     * @throws InvalidSymbolNameException if <code>varName</code> isn't a valid symbol name.
+     * @throws ReadonlyException if the variable can't be set because it was previously defined as read-only.
+     */
+    public void setVariable(String varName, double value) throws ExpressionException{
+        setVariable(varName, false, value);
     }
 
     /**
      * Evaluates the specified {@link Expression} in this context, logging the steps done to the provided {@link Writer}, and binds its value to the specified variable name.
      * If a variable with the same name is already defined, it's value is replaced.
      * @param varName The name of the variable to assign the value of the expression to.
+     * @param readOnly Whether this variable must be read-only or it can be redefined later.
      * @param value The expression whose value will be assigned to the variable.
      * @param logWriter A {@link Writer} where the evaluation steps of the expression will be logged to.
      * @throws UndefinedException if <code>value</code> can't be evaluated because it contains a symbol that isn't defined in this context.
      * @throws InvalidSymbolNameException if <code>varName</code> isn't a valid symbol name.
+     * @throws ReadonlyException if the variable can't be set because it was previously defined as read-only.
      */
-    public void setVariable(String varName, Expression value, Writer logWriter) throws UndefinedException, InvalidSymbolNameException{
-        setVariable(varName, value.eval(this, logWriter));
+    public void setVariable(String varName, boolean readOnly, Expression value, Writer logWriter) throws ExpressionException{
+        setVariable(varName, readOnly, value.eval(this, logWriter));
     }
 
     /**
      * Evaluates the specified {@link Expression} in this context, without logging the steps done, and binds its value to the specified variable name.
      * @param varName The name of the variable to assign the value of the expression to.
+     * @param readOnly Whether this variable must be read-only or it can be redefined later.
      * @param value The expression whose value will be assigned to the variable.
      * @throws UndefinedException if <code>value</code> can't be evaluated because it contains a symbol that isn't defined in this context.
      * @throws InvalidSymbolNameException if <code>varName</code> isn't a valid symbol name.
+     * @throws ReadonlyException if the variable can't be set because it was previously defined as read-only.
      */
-    public void setVariable(String varName, Expression value) throws UndefinedException, InvalidSymbolNameException{
-        setVariable(varName, value.eval(this));
+    public void setVariable(String varName, boolean readOnly, Expression value) throws ExpressionException{
+        setVariable(varName, readOnly, value.eval(this));
     }
 
     /**
@@ -145,7 +181,7 @@ public class ExpressionContext {
      */
     public String toString(){
         String result = "";
-        for(Map.Entry<String, Double> var: variables.entrySet())
+        for(Map.Entry<String, VariableValue> var: variables.entrySet())
             result += var.getKey() + "=" + var.getValue() + ", ";
         for(Function f: functions)
             result += f.toString() + ", ";

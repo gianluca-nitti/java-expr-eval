@@ -10,13 +10,18 @@ public class ExpressionContextTest extends TestCase{
         ExpressionContext c = new ExpressionContext();
         try {
             c.setVariable("someVar", 5);
-            c.setVariable("some_other_variable123", new ConstExpression(1));
+            c.setVariable("some_other_variable123", true, 1);
             assertEquals(5.0, c.getVariable("someVar"));
         }catch(ExpressionException ex){
             fail(ex.getMessage());
         }
         try{
-            c.setVariable("123some_invalid_variable123", new ConstExpression(1));
+            c.setVariable("some_other_variable123", 2);
+        }catch(ExpressionException ex){
+            assertTrue(ex instanceof ReadonlyException);
+        }
+        try{
+            c.setVariable("123some_invalid_variable123", 1);
             fail("A variable name with invalid characters is being accepted.");
         }catch(ExpressionException ex){
             assertEquals(ex.getMessage(), "Expression error: \"123some_invalid_variable123\" isn't a valid symbol name because it contains the '1' character.");
@@ -32,9 +37,9 @@ public class ExpressionContextTest extends TestCase{
     public void testSetVariableExpression(){
         try {
             ExpressionContext c = new ExpressionContext();
-            c.setVariable("a", new BinaryOpExpression(new ConstExpression(3), '+', new ConstExpression(5)));
+            c.setVariable("a", false, new BinaryOpExpression(new ConstExpression(3), '+', new ConstExpression(5)));
             assertEquals(8.0, c.getVariable("a"));
-            c.setVariable("b", new NegatedExpression(new VariableExpression("a")));
+            c.setVariable("b", false, new NegatedExpression(new VariableExpression("a")));
             assertEquals(-8.0, c.getVariable("b"));
         }catch(ExpressionException ex){
             fail(ex.getMessage());
@@ -68,7 +73,7 @@ public class ExpressionContextTest extends TestCase{
         try {
             c.setVariable("a", 4);
             c.setVariable("b", 8);
-        }catch(InvalidSymbolNameException ex){
+        }catch(ExpressionException ex){
             fail(ex.getMessage());
         }
         assertTrue(c.toString().contains("a=4.0"));
@@ -80,7 +85,7 @@ public class ExpressionContextTest extends TestCase{
         try {
             c.setVariable("someVar", 1);
             c.setFunction("some_function", new VariableExpression("x"), "x");
-        }catch(InvalidSymbolNameException ex){
+        }catch(ExpressionException ex){
             fail(ex.getMessage());
         }
         c.clear();
