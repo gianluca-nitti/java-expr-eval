@@ -5,8 +5,13 @@ package com.github.gianlucanitti.javaexpreval;
  */
 public class ReadonlyException extends ExpressionException {
 
-    public ReadonlyException(String name, boolean isFunction){
-        super("The " + (isFunction ? "function" : "variable") + " \"" + name + "\" is read-only.");
+    /**
+     * Initializes a new ReadonlyException related to the specified variable or function.
+     * @param name The name of the read-only function or variable.
+     * @param argCount The number of arguments of the read-only function, or a negative value if it's a variable.
+     */
+    public ReadonlyException(String name, int argCount){
+        super("The " + (argCount < 0 ? "variable" : "function") + " \"" + name + "\" is defined as read-only" + (argCount < 0 ? "" : " for " + argCount + " arguments") + ".");
     }
 
 }

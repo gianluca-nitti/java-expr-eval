@@ -3,6 +3,7 @@ package com.github.gianlucanitti.javaexpreval;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -61,7 +62,7 @@ public class ExpressionContext {
     public void setVariable(String varName, boolean readOnly, double value) throws ExpressionException{
         VariableExpression.assertValidSymbolName(varName);
         if(variables.containsKey(varName) && variables.get(varName).readOnly)
-            throw new ReadonlyException(varName, false);
+            throw new ReadonlyException(varName, -1);
         else
             variables.put(varName, new VariableValue(value, readOnly));
     }
@@ -80,7 +81,7 @@ public class ExpressionContext {
 
     /**
      * Evaluates the specified {@link Expression} in this context, logging the steps done to the provided {@link Writer}, and binds its value to the specified variable name.
-     * If a variable with the same name is already defined, it's value is replaced.
+     * If a variable with the same name is already defined and it's not read-only, it's value is replaced.
      * @param varName The name of the variable to assign the value of the expression to.
      * @param readOnly Whether this variable must be read-only or it can be redefined later.
      * @param value The expression whose value will be assigned to the variable.
@@ -110,33 +111,53 @@ public class ExpressionContext {
      * Deletes/un-defines the specified variable from this context, if existing.
      * @param varName The name of the variable to delete.
      */
-    public void delVariable(String varName){
+    public void delVariable(String varName) throws ReadonlyException{
+        if(variables.get(varName) != null && variables.get(varName).readOnly)
+            throw new ReadonlyException(varName, -1);
         variables.remove(varName);
     }
 
     /**
      * Adds the specified {@link Function} to this context.
      * @param f The function to add.
+     * @throws ReadonlyException if the function can't be set because it was previously defined as read-only.
      */
-    public void setFunction(Function f) {
-        if (!functions.add(f)) { //if a function with the same signature is already present, add will return false...
-            //... so the old function is removed (the new one can be used as key because they have the same name and number of arguments, so they are equal according to Function.equals(Object))
-            functions.remove(f);
-            functions.add(f); //then the new one is added, replacing the previous
-        }
+    public void setFunction(Function f) throws ExpressionException{
+        if(functions.contains(f)) //check if a function with the same signature is already defined
+            if(getFunction(f.getName(), f.getArgCount()).isReadOnly())
+                throw new ReadonlyException(f.getName(), f.getArgCount());
+            else //if it's not read-only...
+                functions.remove(f); //...the old function is removed (the new one can be used as key because they have the same name and number of arguments, so they are equal according to Function.equals(Object))
+        functions.add(f); //then the new one is added, replacing the previous
     }
 
     /**
      * Initializes a new {@link CustomFunction} and adds it to this context.
-     * Arguments are the same of the {@link CustomFunction#CustomFunction(String, Expression, String...)} constructor.
+     * Arguments are the same of the {@link CustomFunction#CustomFunction(String, Expression, boolean, String...)} constructor.
+     * @param name The name for the new function.
+     * @param expr The expression that defines this function; can contain variables with the names specified in argNames,
+     * that will be replaced by the arguments values when this is evaluated.
+     * @param readOnly Whether this function is read-only or it can be redefined.
+     * @param argNames The names of the arguments of this function.
+     * @throws InvalidSymbolNameException if <code>name</code> or one of the items in <code>argNames</code> aren't valid symbol names (see {@link NamedSymbolExpression}).
+     * @throws ReadonlyException if the function can't be set because it was previously defined as read-only.
+     */
+    public void setFunction(String name, Expression expr, boolean readOnly, String ... argNames) throws ExpressionException {
+        setFunction(new CustomFunction(name, expr, readOnly, argNames));
+    }
+
+    /**
+     * Initializes a new {@link CustomFunction} and adds it to this context.
+     * Wrapper for {@link #setFunction(String, Expression, boolean, String...)} with <code>false</code> as 3rd argument.
      * @param name The name for the new function.
      * @param expr The expression that defines this function; can contain variables with the names specified in argNames,
      * that will be replaced by the arguments values when this is evaluated.
      * @param argNames The names of the arguments of this function.
      * @throws InvalidSymbolNameException if <code>name</code> or one of the items in <code>argNames</code> aren't valid symbol names (see {@link NamedSymbolExpression}).
+     * @throws ReadonlyException if the function can't be set because it was previously defined as read-only.
      */
-    public void setFunction(String name, Expression expr, String ... argNames) throws InvalidSymbolNameException {
-        setFunction(new CustomFunction(name, expr, argNames));
+    public void setFunction(String name, Expression expr, String ... argNames) throws ExpressionException {
+        setFunction(name, expr, false, argNames);
     }
 
     /**
@@ -158,21 +179,30 @@ public class ExpressionContext {
      * @param name The name of the function to remove.
      * @param argCount The number of arguments of the function to remove.
      */
-    public void delFunction(String name, int argCount){
+    public void delFunction(String name, int argCount) throws ReadonlyException {
         Function toRemove = null;
         for(Function f: functions)
             if(f.getArgCount() == argCount && f.getName().equals(name))
                 toRemove = f;
         if(toRemove != null)
-            functions.remove(toRemove);
+            if(toRemove.isReadOnly())
+                throw new ReadonlyException(name, argCount);
+            else
+                functions.remove(toRemove);
     }
 
     /**
-     * Clears this context wiping all the defined variables and functions.
+     * Clears this context wiping the non-readonly defined variables and functions.
      */
     public void clear(){
-        variables.clear();
-        functions.clear();
+        Iterator<Map.Entry<String, VariableValue>> varIterator = variables.entrySet().iterator();
+        while(varIterator.hasNext())
+            if(!varIterator.next().getValue().readOnly)
+                varIterator.remove();
+        Iterator<Function> funcIterator = functions.iterator();
+        while(funcIterator.hasNext())
+            if(!funcIterator.next().isReadOnly())
+                funcIterator.remove();
     }
 
     /**

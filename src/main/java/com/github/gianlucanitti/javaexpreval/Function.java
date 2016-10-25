@@ -3,27 +3,37 @@ package com.github.gianlucanitti.javaexpreval;
 import java.io.PrintWriter;
 
 /**
- * Defines a generic function, with a name and a number of arguments.
+ * Defines a generic function, with a name a number of arguments and a read-only flag.
  */
 public abstract class Function {
 
     private String name;
+    private boolean readOnly;
 
     /**
      * Initializes an instance of the Function class representing a function with the specified name.
      * @param name The name of the function; in an expression, a function is called with the syntax name(arg1, arg2,...argN).
+     * @param readOnly Whether this function is read-only or it can be redefined.
      * @throws InvalidSymbolNameException if <code>name</code> isn't a valid symbol name (see {@link NamedSymbolExpression}).
      */
-    public Function(String name) throws InvalidSymbolNameException{
+    public Function(String name, boolean readOnly) throws InvalidSymbolNameException{
         NamedSymbolExpression.assertValidSymbolName(name);
         this.name = name;
+        this.readOnly = readOnly;
     }
 
     /**
-     * @return The name of this function (the string passed to the {@link #Function(String)} constructor).
+     * @return The name of this function (the 1st argument passed to the {@link #Function(String, boolean)} constructor).
      */
     public String getName(){
         return name;
+    }
+
+    /**
+     * @return A boolean indicating if this function was defined as read-only (the 2nd argument passed to the {@link #Function(String, boolean)} constructor).
+     */
+    public boolean isReadOnly(){
+        return readOnly;
     }
 
     /**

@@ -55,12 +55,12 @@ public abstract class Expression{
   public void bindVariables(String[] varNames, double[] values){
     if(varNames.length != values.length)
       throw new IllegalArgumentException();
-    for(Expression var: getSubExpressions())
-      if(var instanceof VariableExpression) {
-        for (int i = 0; i < varNames.length; i++)
-          if (((VariableExpression) var).getName().equals(varNames[i]))
-            ((VariableExpression) var).bind(new ConstExpression(values[i]));
-      }else
+    if(this instanceof VariableExpression) {
+      for (int i = 0; i < varNames.length; i++)
+        if (((VariableExpression) this).getName().equals(varNames[i]))
+          ((VariableExpression) this).bind(new ConstExpression(values[i]));
+    }else
+      for(Expression var: getSubExpressions())
         var.bindVariables(varNames, values);
   }
 

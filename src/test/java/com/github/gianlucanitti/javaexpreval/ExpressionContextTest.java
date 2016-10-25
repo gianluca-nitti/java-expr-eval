@@ -51,10 +51,10 @@ public class ExpressionContextTest extends TestCase{
         try {
             c.setVariable("someVar", 1);
             c.setVariable("someOtherVar", 2);
+            c.delVariable("someVar");
         }catch(ExpressionException ex){
             fail(ex.getMessage());
         }
-        c.delVariable("someVar");
         try {
             assertEquals(2.0, c.getVariable("someOtherVar"));
         }catch(UndefinedException ex){
@@ -84,7 +84,9 @@ public class ExpressionContextTest extends TestCase{
         ExpressionContext c = new ExpressionContext();
         try {
             c.setVariable("someVar", 1);
+            c.setVariable("someReadonlyVar", true, 0);
             c.setFunction("some_function", new VariableExpression("x"), "x");
+            c.setFunction("some_readonly_function", new VariableExpression("x"), true, "x");
         }catch(ExpressionException ex){
             fail(ex.getMessage());
         }
@@ -100,6 +102,16 @@ public class ExpressionContextTest extends TestCase{
             fail("A function is still accessible after clear.");
         }catch(UndefinedException ex){
             //ok (function has been deleted)
+        }
+        try{
+            c.getVariable("someReadonlyVar");
+        }catch(UndefinedException ex){
+            fail("A read-only variable has been deleted during clear.");
+        }
+        try{
+            c.getFunction("some_readonly_function", 1);
+        }catch(UndefinedException ex){
+            fail("A read-only function has been deleted during clear.");
         }
     }
 
@@ -118,14 +130,21 @@ public class ExpressionContextTest extends TestCase{
         }
     }
 
-    public void testDelFunction() throws InvalidSymbolNameException{
+    public void testDelFunction() throws ExpressionException{
         ExpressionContext c = new ExpressionContext();
         c.setFunction("someFunction", new ConstExpression(1), "arg");
+        c.setFunction("someFunction", new ConstExpression(1), true, "arg1", "arg2");
         c.delFunction("someFunction", 1);
         try{
             c.getFunction("someFunction", 1);
             fail("A deleted function is still accessible.");
         }catch(UndefinedException ex){
+            //ok
+        }
+        try {
+            c.delFunction("someFunction", 2);
+            fail("A read-only function has been deleted.");
+        }catch(ReadonlyException ex){
             //ok
         }
     }

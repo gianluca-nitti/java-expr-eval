@@ -21,7 +21,7 @@ public class BuiltInFunctions {
          * @throws InvalidSymbolNameException if <code>name</code> isn't a valid symbol name (see {@link NamedSymbolExpression}).
          */
         public BuiltInFunction(String name, int argCount) throws InvalidSymbolNameException {
-            super(name);
+            super(name, true); //Built-in functions are readonly
             this.argCount = argCount;
         }
 
