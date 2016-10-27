@@ -212,7 +212,7 @@ public class InteractiveExpressionContext extends ExpressionContext {
                     if (command.contains("=")) { //if it contains an =, then it's considered an assignment
                         String[] sides = command.split("=");
                         if(sides.length == 1){ //an assignment with nothing on the right of the equality symbol (e.g. "someVar=" or "someFun(1)=") deletes the variable/function (if function, the number of arguments must be specified)
-                            Pattern pattern = Pattern.compile("^(.*?)(?:\\((\\d*)\\))?$");
+                            Pattern pattern = Pattern.compile("^([A-Za-z0-9_]*?)(?:\\((\\d+)\\))?$");
                             Matcher matcher = pattern.matcher(sides[0].trim()); //remove spaces and parse with regex
                             if(!matcher.matches())
                                 errorWriter.println("Incorrect syntax. To delete a function, the number of arguments must be specified (e.g. \"fun(2)=\" to delete \"fun(x, y)\").");

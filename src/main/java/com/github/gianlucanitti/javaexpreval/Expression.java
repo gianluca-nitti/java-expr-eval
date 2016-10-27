@@ -189,7 +189,8 @@ public abstract class Expression{
             argEnd = expr.indexOf(',', argBegin);
             if(argEnd == -1 || argEnd > closedIndex)
               argEnd = closedIndex;
-            args.add(parseRange(expr, argBegin, argEnd, logWriter));
+            if(argBegin != argEnd)
+              args.add(parseRange(expr, argBegin, argEnd, logWriter));
             argBegin = argEnd + 1;
           }while(argEnd != closedIndex);
           itemToAdd = new FunctionExpression(symName, args.toArray(new Expression[args.size()]));

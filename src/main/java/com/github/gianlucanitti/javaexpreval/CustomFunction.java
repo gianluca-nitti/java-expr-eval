@@ -1,6 +1,7 @@
 package com.github.gianlucanitti.javaexpreval;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 /**
  * Represents a user-defined function, defined as an expression.
@@ -21,9 +22,13 @@ public class CustomFunction extends Function {
      */
     public CustomFunction(String name, Expression expr, boolean readOnly, String ... argNames) throws InvalidSymbolNameException {
         super(name, readOnly);
+        ArrayList<String> argNameList = new ArrayList<String>(argNames.length);
         for(String s: argNames)
-            NamedSymbolExpression.assertValidSymbolName(s);
-        this.argNames = argNames;
+            if(s != null && s.length() > 0) {
+                NamedSymbolExpression.assertValidSymbolName(s);
+                argNameList.add(s);
+            }
+        this.argNames = argNameList.toArray(new String[0]);
         this.expr = expr;
     }
 

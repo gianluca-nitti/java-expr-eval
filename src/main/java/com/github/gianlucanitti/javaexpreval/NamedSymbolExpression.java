@@ -49,7 +49,7 @@ public abstract class NamedSymbolExpression extends Expression{
     /**
      * If the specified string is an invalid symbol name, returns the index of the first character that isn't a letter or an underscore.
      * @param s The symbol name.
-     * @return <code>-1</code> if <code>s</code> is a valid symbol name, <code>-2</code> if <code>s</code> is empty (and thus not a valid symbol name),otherwise the index of the first invalid character in <code>s</code>.
+     * @return <code>-1</code> if <code>s</code> is a valid symbol name, <code>-2</code> if <code>s</code> is empty (and thus not a valid symbol name), otherwise the index of the first invalid character in <code>s</code>.
      */
     public static int firstInvalidSymbolNameCharIndex(String s){
         if(s.length() == 0)
