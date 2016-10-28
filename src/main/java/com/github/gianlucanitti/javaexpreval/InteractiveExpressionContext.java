@@ -195,15 +195,17 @@ public class InteractiveExpressionContext extends ExpressionContext {
                             break;
                         case HELP:
                             PrintWriter helpWriter = helpVerbose ? verboseWriter : outputWriter;
-                            helpWriter.println("Accepted statements are expressions, assignments and commands.");
-                            helpWriter.println("An expression can be formed by integer or decimal numbers, the +,-,*,/,^ binary operators, variables, functions and parenthesis.");
-                            helpWriter.println("A variable is a string of one or more letters and/or underscores. Variables can't be named as commands, which are reserved words.");
-                            helpWriter.println("A variable assignment is formed by a variable name followed by the = symbol and an expression, which is evaluated and bound to that variable.");
-                            helpWriter.println("An empty assignment (in the form \"someVariable=\") deletes the variable.");
-                            helpWriter.println("A function assignment is formed by a function name and its parameters, followed by the = symbol and an expression, which bound to that function, e.g.\"sum(x,y)=x+y\".");
-                            helpWriter.println("A function can be deleted with an empty assignment; the number of arguments must be specified, e.g. \"sum(2)=\" to delete the function \"sum\" defined on two arguments.");
-                            helpWriter.println("An assignment (of variable or function) can be prepended with the \"readonly\" word to prevent it to be modified or deleted, e.g. \"readonly x=1\", \"readonly square(a)=a^2\".");
-                            helpWriter.println("The commands are: context (prints all the defined variables and functions), clear (deletes all the non-readonly variables and functions), help (shows this message) and exit (stops reading input).");
+                            String nl = System.getProperty("line.separator");
+                            helpWriter.println("Accepted statements are expressions, assignments and commands."
+                                + nl + "An expression can be formed by integer or decimal numbers, the +,-,*,/,^ binary operators, variables, functions and parenthesis."
+                                + nl + "A variable is a string of one or more letters and/or underscores. Variables can't be named as commands, which are reserved words."
+                                + nl + "When an expression is successfully evaluated, it's result is displayed and automatically assigned to the \"ans\" variable, so it can be accessed from the next statement."
+                                + nl + "A variable assignment is formed by a variable name followed by the = symbol and an expression, which is evaluated and bound to that variable."
+                                + nl + "An empty assignment (in the form \"someVariable=\") deletes the variable."
+                                + nl + "A function assignment is formed by a function name and its parameters, followed by the = symbol and an expression, which is bound to that function, e.g.\"sum(x,y)=x+y\"."
+                                + nl + "A function can be deleted with an empty assignment; the number of arguments must be specified, e.g. \"sum(2)=\" to delete the function \"sum\" defined on two arguments."
+                                + nl + "An assignment (of variable or function) can be prepended with the \"readonly\" word to prevent it to be modified or deleted, e.g. \"readonly x=1\", \"readonly square(a)=a^2\"."
+                                + nl + "The commands are: context (prints all the defined variables and functions), clear (deletes all the non-readonly variables and functions), help (shows this message) and exit (stops reading input).");
                             break;
                         case EXIT:
                             return Status.EXIT;

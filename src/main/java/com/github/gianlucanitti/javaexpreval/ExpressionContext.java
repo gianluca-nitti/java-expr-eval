@@ -22,7 +22,7 @@ public class ExpressionContext {
 
         @Override
         public String toString(){
-            return (readOnly ? "const " : "") + value;
+            return (readOnly ? "readonly " : "") + value;
         }
     }
 
@@ -59,7 +59,7 @@ public class ExpressionContext {
      * @throws InvalidSymbolNameException if <code>varName</code> isn't a valid symbol name.
      * @throws ReadonlyException if the variable can't be set because it was previously defined as read-only.
      */
-    public void setVariable(String varName, boolean readOnly, double value) throws ExpressionException{
+    public void setVariable(String varName, boolean readOnly, double value) throws InvalidSymbolNameException, ReadonlyException{
         VariableExpression.assertValidSymbolName(varName);
         if(variables.containsKey(varName) && variables.get(varName).readOnly)
             throw new ReadonlyException(varName, -1);
@@ -75,7 +75,7 @@ public class ExpressionContext {
      * @throws InvalidSymbolNameException if <code>varName</code> isn't a valid symbol name.
      * @throws ReadonlyException if the variable can't be set because it was previously defined as read-only.
      */
-    public void setVariable(String varName, double value) throws ExpressionException{
+    public void setVariable(String varName, double value) throws InvalidSymbolNameException, ReadonlyException{
         setVariable(varName, false, value);
     }
 
@@ -90,7 +90,7 @@ public class ExpressionContext {
      * @throws InvalidSymbolNameException if <code>varName</code> isn't a valid symbol name.
      * @throws ReadonlyException if the variable can't be set because it was previously defined as read-only.
      */
-    public void setVariable(String varName, boolean readOnly, Expression value, Writer logWriter) throws ExpressionException{
+    public void setVariable(String varName, boolean readOnly, Expression value, Writer logWriter) throws UndefinedException, InvalidSymbolNameException, ReadonlyException{
         setVariable(varName, readOnly, value.eval(this, logWriter));
     }
 
@@ -103,7 +103,7 @@ public class ExpressionContext {
      * @throws InvalidSymbolNameException if <code>varName</code> isn't a valid symbol name.
      * @throws ReadonlyException if the variable can't be set because it was previously defined as read-only.
      */
-    public void setVariable(String varName, boolean readOnly, Expression value) throws ExpressionException{
+    public void setVariable(String varName, boolean readOnly, Expression value) throws UndefinedException, InvalidSymbolNameException, ReadonlyException{
         setVariable(varName, readOnly, value.eval(this));
     }
 
@@ -122,11 +122,16 @@ public class ExpressionContext {
      * @param f The function to add.
      * @throws ReadonlyException if the function can't be set because it was previously defined as read-only.
      */
-    public void setFunction(Function f) throws ExpressionException{
-        if(functions.contains(f)) //check if a function with the same signature is already defined
-            if(getFunction(f.getName(), f.getArgCount()).isReadOnly())
-                throw new ReadonlyException(f.getName(), f.getArgCount());
-            else //if it's not read-only...
+    public void setFunction(Function f) throws ReadonlyException{
+        boolean isReadonly;
+        try{
+            isReadonly = getFunction(f.getName(), f.getArgCount()).isReadOnly(); //check if a function with the same signature is already defined as readonly
+        }catch(UndefinedException ex){
+            isReadonly = false;
+        }
+        if(isReadonly)
+            throw new ReadonlyException(f.getName(), f.getArgCount());
+        else //if it's not read-only...
                 functions.remove(f); //...the old function is removed (the new one can be used as key because they have the same name and number of arguments, so they are equal according to Function.equals(Object))
         functions.add(f); //then the new one is added, replacing the previous
     }
@@ -142,7 +147,7 @@ public class ExpressionContext {
      * @throws InvalidSymbolNameException if <code>name</code> or one of the items in <code>argNames</code> aren't valid symbol names (see {@link NamedSymbolExpression}).
      * @throws ReadonlyException if the function can't be set because it was previously defined as read-only.
      */
-    public void setFunction(String name, Expression expr, boolean readOnly, String ... argNames) throws ExpressionException {
+    public void setFunction(String name, Expression expr, boolean readOnly, String ... argNames) throws InvalidSymbolNameException, ReadonlyException {
         setFunction(new CustomFunction(name, expr, readOnly, argNames));
     }
 
@@ -156,7 +161,7 @@ public class ExpressionContext {
      * @throws InvalidSymbolNameException if <code>name</code> or one of the items in <code>argNames</code> aren't valid symbol names (see {@link NamedSymbolExpression}).
      * @throws ReadonlyException if the function can't be set because it was previously defined as read-only.
      */
-    public void setFunction(String name, Expression expr, String ... argNames) throws ExpressionException {
+    public void setFunction(String name, Expression expr, String ... argNames) throws InvalidSymbolNameException, ReadonlyException {
         setFunction(name, expr, false, argNames);
     }
 
@@ -211,11 +216,12 @@ public class ExpressionContext {
      */
     public String toString(){
         String result = "";
+        String newLine = System.getProperty("line.separator");
         for(Map.Entry<String, VariableValue> var: variables.entrySet())
-            result += var.getKey() + "=" + var.getValue() + ", ";
+            result += var.getKey() + "=" + var.getValue() + newLine;
         for(Function f: functions)
-            result += f.toString() + ", ";
-        return result.length() == 0 ? result : result.substring(0, result.length() - 2);
+            result += f.toString() + newLine;
+        return result.length() == 0 ? result : result.substring(0, result.length() - newLine.length());
     }
 
 }

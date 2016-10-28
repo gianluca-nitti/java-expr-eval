@@ -93,11 +93,11 @@ public abstract class Function {
     }
 
     /**
-     * @return A string representation of this {@link Function} that specifies the name and number of arguments.
+     * @return A string representation of this {@link Function} that specifies the name, number of arguments and if it's readonly.
      */
     @Override
     public String toString(){
-        return name + "(" + getArgCount() + " arguments)";
+        return (readOnly ? "readonly " : "") + name + "(" + getArgCount() + " arguments)";
     }
 
 }

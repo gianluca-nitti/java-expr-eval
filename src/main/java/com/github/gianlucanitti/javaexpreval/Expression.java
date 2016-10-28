@@ -75,6 +75,11 @@ public abstract class Expression{
     double val = evalExpr(context, logWriter);
     logWriter.print(getEvalMsg(val));
     logWriter.flush();
+    try {
+      context.setVariable("ans", val);
+    }catch(ExpressionException ex){
+      logWriter.println("Warning: failed to store result: " + ex.getMessage());
+    }
     return val;
   }
 
