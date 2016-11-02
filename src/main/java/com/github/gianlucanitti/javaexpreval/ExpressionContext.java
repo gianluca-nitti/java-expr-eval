@@ -1,25 +1,48 @@
 package com.github.gianlucanitti.javaexpreval;
 
 import java.io.Writer;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
- * The context an expression can be evaluated in. Can contain binding between variables and their values.
+ * The context an expression can be evaluated in. Can contain binding between variables and their values and function definitions.
+ * This object is {@link Observable}; it notifies its {@link Observer}s every time it's internal state changes (i.e. a variable or function is added, changed or deleted).
  */
-public class ExpressionContext {
+public class ExpressionContext extends Observable {
 
-    private class VariableValue{
+    /**
+     * Represents the value of a variable defined in an ExpressionContext.
+     */
+    public static class VariableValue{
         private double value;
         private boolean readOnly;
 
-        private VariableValue(double value, boolean readOnly) {
+        /**
+         * Initializes a new instance of VariableValue.
+         * @param value The value of the variable.
+         * @param readOnly Whether the variable must be read-only or not.
+         */
+        public VariableValue(double value, boolean readOnly) {
             this.value = value;
             this.readOnly = readOnly;
         }
 
+        /**
+         * @return The value of this variable, as specified as 1st argument to the {@link #VariableValue(double, boolean)} constructor.
+         */
+        public double getValue() {
+            return value;
+        }
+
+        /**
+         * @return Whether this variable is read-only, as specified as 2nd argument to the {@link #VariableValue(double, boolean)} constructor.
+         */
+        public boolean isReadOnly() {
+            return readOnly;
+        }
+
+        /**
+         * @return A string representation of this VariableValue, which is it's numeric value prepended by the "readonly " prefix if it was initialized as read-only.
+         */
         @Override
         public String toString(){
             return (readOnly ? "readonly " : "") + value;
@@ -36,6 +59,29 @@ public class ExpressionContext {
         variables = new HashMap<String, VariableValue>();
         functions = new HashSet<Function>();
         functions.addAll(BuiltInFunctions.getList());
+    }
+
+    /**
+     * Marks this object as changed and notifies the observers
+     * (simply calls {@link #setChanged()} and {@link #notifyObservers()} from {@link Observable}.
+     */
+    private void updateObservers(){
+        setChanged();
+        notifyObservers();
+    }
+
+    /**
+     * @return A unmodifiable {@link Map} containing the names and values of the variables defined in this context.
+     */
+    public Map<String, VariableValue> getVariables(){
+        return Collections.unmodifiableMap(variables);
+    }
+
+    /**
+     * @return A unmodifiable {@link Set} containing the functions defined in this context.
+     */
+    public Set<Function> getFunctions(){
+        return Collections.unmodifiableSet(functions);
     }
 
     /**
@@ -65,6 +111,7 @@ public class ExpressionContext {
             throw new ReadonlyException(varName, -1);
         else
             variables.put(varName, new VariableValue(value, readOnly));
+        updateObservers();
     }
 
     /**
@@ -115,6 +162,7 @@ public class ExpressionContext {
         if(variables.get(varName) != null && variables.get(varName).readOnly)
             throw new ReadonlyException(varName, -1);
         variables.remove(varName);
+        updateObservers();
     }
 
     /**
@@ -134,6 +182,7 @@ public class ExpressionContext {
         else //if it's not read-only...
                 functions.remove(f); //...the old function is removed (the new one can be used as key because they have the same name and number of arguments, so they are equal according to Function.equals(Object))
         functions.add(f); //then the new one is added, replacing the previous
+        updateObservers();
     }
 
     /**
@@ -194,6 +243,7 @@ public class ExpressionContext {
                 throw new ReadonlyException(name, argCount);
             else
                 functions.remove(toRemove);
+        updateObservers();
     }
 
     /**
@@ -208,6 +258,7 @@ public class ExpressionContext {
         while(funcIterator.hasNext())
             if(!funcIterator.next().isReadOnly())
                 funcIterator.remove();
+        updateObservers();
     }
 
     /**

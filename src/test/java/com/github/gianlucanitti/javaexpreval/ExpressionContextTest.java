@@ -3,8 +3,48 @@ package com.github.gianlucanitti.javaexpreval;
 import junit.framework.TestCase;
 
 import java.io.PrintWriter;
+import java.util.*;
 
 public class ExpressionContextTest extends TestCase{
+
+    public void testGetVariables() throws ExpressionException{
+        ExpressionContext c = new ExpressionContext();
+        c.setVariable("a", 5);
+        for(Map.Entry<String, ExpressionContext.VariableValue> v: c.getVariables().entrySet()) {
+            assertEquals("a", v.getKey());
+            assertEquals(5.0, v.getValue().getValue());
+            assertFalse(v.getValue().isReadOnly());
+            try{
+                v.setValue(new ExpressionContext.VariableValue(2, false));
+                fail("An item was edited in the result of ExpressionContext.getVariables(), which should be read-only.");
+            }catch(Exception ex){
+                assertTrue(ex instanceof UnsupportedOperationException);
+            }
+        }
+        try {
+            c.getVariables().put("test", new ExpressionContext.VariableValue(1, false));
+            fail("An item was added to the result of ExpressionContext.getVariables(), which should be read-only.");
+        }catch(Exception ex){
+            assertTrue(ex instanceof UnsupportedOperationException);
+        }
+    }
+
+    public void testGetFunctions() throws ExpressionException{
+        ExpressionContext c = new ExpressionContext();
+        List<Function> builtInFunctions = new ArrayList<Function>();
+        for(Function f: BuiltInFunctions.getList())
+            builtInFunctions.add(f);
+        for(Function f: c.getFunctions()) {
+            assertTrue(builtInFunctions.contains(f));
+            assertTrue(f.isReadOnly());
+        }
+        try {
+            c.getFunctions().add(BuiltInFunctions.getList().get(0));
+            fail("An item was added to the result of ExpressionContext.getFunctions(), which should be read-only.");
+        }catch(Exception ex){
+            assertTrue(ex instanceof UnsupportedOperationException);
+        }
+    }
 
     public void testGetSetVariable(){
         ExpressionContext c = new ExpressionContext();
@@ -147,6 +187,31 @@ public class ExpressionContextTest extends TestCase{
         }catch(ReadonlyException ex){
             //ok
         }
+    }
+
+    public void testObservable() throws InvalidSymbolNameException, ReadonlyException{
+        final List<String> vars = new ArrayList<String>();
+        final List<String> functions = new ArrayList<String>();
+        class ob implements Observer{
+            public void update(Observable o, Object arg){
+                vars.clear();
+                functions.clear();
+                for(Map.Entry<String, ExpressionContext.VariableValue> v: ((ExpressionContext)o).getVariables().entrySet())
+                    vars.add(v.getKey());
+                for(Function f: ((ExpressionContext)o).getFunctions())
+                    if(f instanceof CustomFunction) //ignore built-in functions
+                        functions.add(f.getName() + f.getArgCount());
+            }
+        }
+        ExpressionContext c = new ExpressionContext();
+        c.addObserver(new ob());
+        c.setVariable("a", 1);
+        assertTrue(vars.size() == 1 && vars.get(0).equals("a"));
+        c.setVariable("b", 1);
+        assertTrue(vars.size() == 2 && vars.contains("a") && vars.contains("b"));
+        c.setFunction("fun", new ConstExpression(1));
+        assertTrue(functions.size() == 1 && functions.get(0).equals("fun0"));
+        assertTrue(vars.size() == 2 && vars.contains("a") && vars.contains("b"));
     }
 
 }
