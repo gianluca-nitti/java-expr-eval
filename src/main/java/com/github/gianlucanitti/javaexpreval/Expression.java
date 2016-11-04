@@ -65,7 +65,8 @@ public abstract class Expression{
   }
 
   /**
-   * Evaluates this expression and logs the steps done to the specified {@link PrintWriter}.
+   * Evaluates this expression and logs the steps done to the specified {@link PrintWriter};
+   * the result is returned and stored in the "ans" variable in the context.
    * @param context The {@link ExpressionContext} to evaluate the expression in.
    * @param logWriter A {@link PrintWriter} to write the evaluation steps to.
    * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (function or variable) not defined in the context.

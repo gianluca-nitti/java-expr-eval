@@ -27,14 +27,14 @@ public class ExpressionContext extends Observable {
         }
 
         /**
-         * @return The value of this variable, as specified as 1st argument to the {@link #VariableValue(double, boolean)} constructor.
+         * @return The value of this variable, as specified as 1st argument to the constructor.
          */
         public double getValue() {
             return value;
         }
 
         /**
-         * @return Whether this variable is read-only, as specified as 2nd argument to the {@link #VariableValue(double, boolean)} constructor.
+         * @return Whether this variable is read-only, as specified as 2nd argument to the constructor.
          */
         public boolean isReadOnly() {
             return readOnly;
@@ -157,6 +157,7 @@ public class ExpressionContext extends Observable {
     /**
      * Deletes/un-defines the specified variable from this context, if existing.
      * @param varName The name of the variable to delete.
+     * @throws ReadonlyException if the variable can't be deleted because it was defined as read-only.
      */
     public void delVariable(String varName) throws ReadonlyException{
         if(variables.get(varName) != null && variables.get(varName).readOnly)
@@ -232,6 +233,7 @@ public class ExpressionContext extends Observable {
      * Deletes the specified function definition from this context, if existing.
      * @param name The name of the function to remove.
      * @param argCount The number of arguments of the function to remove.
+     * @throws  ReadonlyException if the function can't be deleted because it was defined as read-only.
      */
     public void delFunction(String name, int argCount) throws ReadonlyException {
         Function toRemove = null;

@@ -15,7 +15,8 @@ public class ExpressionTest extends TestCase{
     try {
       c.setVariable("some_Var", -45.8);
       c.setVariable("some_other_var", 3);
-      assertExprValue(-1879080.904, "((50+2-(3*-some_Var))+sqrt(16)-6*7+0)^some_other_var", c);
+      c.setFunction("square", new BinaryOpExpression(new VariableExpression("number"), '^', new ConstExpression(2)), "number");
+      assertExprValue(-1879080.904, "((50+2-(3*-some_Var))+sqrt(square(4))-6*7+0)^some_other_var", c);
     }catch(ExpressionException ex){
       fail(ex.getMessage());
     }
