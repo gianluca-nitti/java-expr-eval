@@ -4,7 +4,7 @@
   <groupId>com.github.gianlucanitti</groupId>
   <artifactId>javaexpreval</artifactId>
   <packaging>jar</packaging>
-  <version>3.0</version>
+  <version>3.0-SNAPSHOT</version>
   <name>java-expr-eval</name>
   <url>http://maven.apache.org</url>
   <properties>

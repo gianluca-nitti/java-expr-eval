@@ -1,9 +1,9 @@
 package com.github.gianlucanitti.javaexpreval;
 
-        import java.io.*;
-        import java.util.HashMap;
-        import java.util.regex.Matcher;
-        import java.util.regex.Pattern;
+import java.io.*;
+import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * An {@link ExpressionContext} with additional methods to interact with the user through {@link Reader}s (input) and {@link Writer}s (output).

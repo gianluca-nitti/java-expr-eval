@@ -3,6 +3,7 @@ package com.github.gianlucanitti.javaexpreval;
 import java.io.Writer;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import static com.github.gianlucanitti.javaexpreval.LocalizationHelper.*;
 
 /**
  * Represents a generic arithmetical expression.
@@ -43,7 +44,7 @@ public abstract class Expression{
    * @return A string built by concatenating the string representation of the expression, the " evaluates to " literal, and the value (<code>val</code> parameter).
    */
   public String getEvalMsg(double val){
-    return toString() + " evaluates to " + val + System.getProperty("line.separator");
+    return getMessage(Message.EVAL_STEP, toString(), Double.toString(val)) + System.getProperty("line.separator");
   }
 
   /**
@@ -79,7 +80,7 @@ public abstract class Expression{
     try {
       context.setVariable("ans", val);
     }catch(ExpressionException ex){
-      logWriter.println("Warning: failed to store result: " + ex.getMessage());
+      logWriter.println(getMessage(Message.FAILED_STORE_RESULT, ex.getMessage()));
     }
     return val;
   }
@@ -226,7 +227,7 @@ public abstract class Expression{
     String userStr = expr.substring(begin, end);
     String parsedStr = result.toString();
     if(!userStr.equals(parsedStr)) { //log only if the string representation of the parsed expression is different from the input string
-      logWriter.println(userStr + " can be rewritten as " + parsedStr);
+      logWriter.println(getMessage(Message.REWRITE_STEP, userStr, parsedStr));
       logWriter.flush();
     }
     return result;
