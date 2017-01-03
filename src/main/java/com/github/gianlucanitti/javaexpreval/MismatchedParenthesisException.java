@@ -10,7 +10,7 @@ public class MismatchedParenthesisException extends ExpressionException{
    * that the numbers of opened and closed parenthesis in an expression don't match.
    */
   public MismatchedParenthesisException(){
-    super("The numbers of opened and closed parenthesis don't match");
+    super(LocalizationHelper.getMessage(LocalizationHelper.Message.PARENTHESIS_MISMATCH));
   }
 
 }

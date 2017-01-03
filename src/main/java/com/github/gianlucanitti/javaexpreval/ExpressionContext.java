@@ -108,7 +108,7 @@ public class ExpressionContext extends Observable {
     public void setVariable(String varName, boolean readOnly, double value) throws InvalidSymbolNameException, ReadonlyException{
         VariableExpression.assertValidSymbolName(varName);
         if(variables.containsKey(varName) && variables.get(varName).readOnly)
-            throw new ReadonlyException(varName, -1);
+            throw new ReadonlyException(varName);
         else
             variables.put(varName, new VariableValue(value, readOnly));
         updateObservers();
@@ -161,7 +161,7 @@ public class ExpressionContext extends Observable {
      */
     public void delVariable(String varName) throws ReadonlyException{
         if(variables.get(varName) != null && variables.get(varName).readOnly)
-            throw new ReadonlyException(varName, -1);
+            throw new ReadonlyException(varName);
         variables.remove(varName);
         updateObservers();
     }

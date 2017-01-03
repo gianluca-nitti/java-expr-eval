@@ -10,7 +10,7 @@ public class InvalidOperatorException extends ExpressionException{
    * @param op The character representing the unsupported operator.
    */
   public InvalidOperatorException(char op){
-    super("Unknown operator '" + op + "'");
+    super(LocalizationHelper.getMessage(LocalizationHelper.Message.INVALID_OPERATOR, Character.toString(op)));
   }
 
 }

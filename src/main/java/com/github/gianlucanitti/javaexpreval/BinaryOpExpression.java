@@ -67,7 +67,7 @@ public final class BinaryOpExpression extends Expression{
 
   /**
    * Returns a string representation of this binary operation, enclosed in parenthesis.
-   * @return The string is built by concatenating the string representations of the two operand expressions separed by the character representing the operator.
+   * @return The string is built by concatenating the string representations of the two operand expressions separated by the character representing the operator.
    */
   @Override
   public String toString(){

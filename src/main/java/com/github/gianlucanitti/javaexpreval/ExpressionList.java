@@ -14,7 +14,7 @@ public final class ExpressionList{
   private ArrayList<Expression> items;
   private ArrayList<Character> operators;
 
-  private boolean expectOperator = false; //When true, it's expected that an operator is added; othervise, an expression is expected.
+  private boolean expectOperator = false; //When true, it's expected that an operator is added; otherwise, an expression is expected.
 
   /**
    * Initializes a new instance of this class.

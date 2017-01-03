@@ -12,7 +12,7 @@ public abstract class ExpressionException extends Exception{
    * @param msg A message describing the occurred problem.
    */
   public ExpressionException(String msg){
-    super("Expression error: " + msg);
+    super(LocalizationHelper.getMessage(LocalizationHelper.Message.ERROR_PREFIX, msg));
   }
   
 }

@@ -10,7 +10,7 @@ public class EmptyExpressionException extends ExpressionException{
    * Initializes a new EmptyExpressionException.
    */
   public EmptyExpressionException(){
-    super("An empty expression was found");
+    super(LocalizationHelper.getMessage(LocalizationHelper.Message.EMPTY_EXPR));
   }
 
 }

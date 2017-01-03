@@ -10,7 +10,7 @@ public class UndefinedException extends ExpressionException{
      * @param varName The name of the undefined variable.
      */
     public UndefinedException(String varName){
-        super("The variable \"" + varName + "\" is not defined.");
+        super(LocalizationHelper.getMessage(LocalizationHelper.Message.UNDEFINED_VAR, varName));
     }
 
     /**
@@ -19,7 +19,7 @@ public class UndefinedException extends ExpressionException{
      * @param argCount The number of arguments the function is trying to be called.
      */
     public UndefinedException(String funcName, int argCount){
-        super("The function \"" + funcName + "\" is not defined for " + argCount + " arguments.");
+        super(LocalizationHelper.getMessage(LocalizationHelper.Message.UNDEFINED_FUNC, funcName, Integer.toString(argCount)));
     }
 
 }

@@ -6,12 +6,20 @@ package com.github.gianlucanitti.javaexpreval;
 public class ReadonlyException extends ExpressionException {
 
     /**
-     * Initializes a new ReadonlyException related to the specified variable or function.
-     * @param name The name of the read-only function or variable.
-     * @param argCount The number of arguments of the read-only function, or a negative value if it's a variable.
+     * Initializes a new ReadonlyException related to the specified function.
+     * @param name The name of the read-only function.
+     * @param argCount The number of arguments of the read-only function.
      */
     public ReadonlyException(String name, int argCount){
-        super("The " + (argCount < 0 ? "variable" : "function") + " \"" + name + "\" is defined as read-only" + (argCount < 0 ? "" : " for " + argCount + " arguments") + ".");
+        super(LocalizationHelper.getMessage(LocalizationHelper.Message.READONLY_FUNC, name, Integer.toString(argCount)));
+    }
+
+    /**
+     * Initializes a new ReadonlyException related to the specified variable.
+     * @param name The name of the read-only variable.
+     */
+    public ReadonlyException(String name){
+        super(LocalizationHelper.getMessage(LocalizationHelper.Message.READONLY_VAR, name));
     }
 
 }

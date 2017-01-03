@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import static com.github.gianlucanitti.javaexpreval.LocalizationHelper.*;
 
 /**
  * An {@link ExpressionContext} with additional methods to interact with the user through {@link Reader}s (input) and {@link Writer}s (output).
@@ -191,21 +192,11 @@ public class InteractiveExpressionContext extends ExpressionContext {
                             break;
                         case CLEAR:
                             clear();
-                            verboseWriter.println("All non-readonly variables and functions have been deleted.");
+                            verboseWriter.println(getMessage(Message.CONTEXT_CLEARED));
                             break;
                         case HELP:
                             PrintWriter helpWriter = helpVerbose ? verboseWriter : outputWriter;
-                            String nl = System.getProperty("line.separator");
-                            helpWriter.println("Accepted statements are expressions, assignments and commands."
-                                + nl + "An expression can be formed by integer or decimal numbers, the +,-,*,/,^ binary operators, variables, functions and parenthesis."
-                                + nl + "A variable is a string of one or more letters and/or underscores. Variables can't be named as commands, which are reserved words."
-                                + nl + "When an expression is successfully evaluated, it's result is displayed and automatically assigned to the \"ans\" variable, so it can be accessed from the next statement."
-                                + nl + "A variable assignment is formed by a variable name followed by the = symbol and an expression, which is evaluated and bound to that variable."
-                                + nl + "An empty assignment (in the form \"someVariable=\") deletes the variable."
-                                + nl + "A function assignment is formed by a function name and its parameters, followed by the = symbol and an expression, which is bound to that function, e.g.\"sum(x,y)=x+y\"."
-                                + nl + "A function can be deleted with an empty assignment; the number of arguments must be specified, e.g. \"sum(2)=\" to delete the function \"sum\" defined on two arguments."
-                                + nl + "An assignment (of variable or function) can be prepended with the \"readonly\" word to prevent it to be modified or deleted, e.g. \"readonly x=1\", \"readonly square(a)=a^2\"."
-                                + nl + "The commands are: context (prints all the defined variables and functions), clear (deletes all the non-readonly variables and functions), help (shows this message) and exit (stops reading input).");
+                            helpWriter.println(getMessage(Message.INTERACTIVE_HELP));
                             break;
                         case EXIT:
                             return Status.EXIT;
@@ -217,13 +208,13 @@ public class InteractiveExpressionContext extends ExpressionContext {
                             Pattern pattern = Pattern.compile("^([A-Za-z0-9_]*?)(?:\\((\\d+)\\))?$");
                             Matcher matcher = pattern.matcher(sides[0].trim()); //remove spaces and parse with regex
                             if(!matcher.matches())
-                                errorWriter.println("Incorrect syntax. To delete a function, the number of arguments must be specified (e.g. \"fun(2)=\" to delete \"fun(x, y)\").");
+                                errorWriter.println(getMessage(Message.INCORRECT_DELETE));
                             else {
                                 if (matcher.group(2) == null) //no arguments, so it's a variable deletion
                                     delVariable(matcher.group(1));
                                 else //argument number is specified, so it's a function deletion
                                     delFunction(matcher.group(1), Integer.parseInt(matcher.group(2)));
-                                verboseWriter.println(sides[0] + " has been deleted.");
+                                verboseWriter.println(getMessage(Message.VAR_DELETED, sides[0]));
                             }
                         }else if (sides.length == 2) {
                             Pattern pattern = Pattern.compile("^(.*?)(?:\\((.*)\\))?$");
@@ -231,7 +222,7 @@ public class InteractiveExpressionContext extends ExpressionContext {
                             matcher.matches();
                             String symName = matcher.group(1);
                             if(commands.containsKey(symName)){
-                                errorWriter.println(symName + " is a reserved word and can't be used as symbol name name.");
+                                errorWriter.println(getMessage(Message.RESERVED_WORD, symName));
                                 if(stopOnError) return Status.ERROR;
                             }else {
                                 boolean readOnly;
@@ -240,14 +231,14 @@ public class InteractiveExpressionContext extends ExpressionContext {
                                 Expression expr = Expression.parse(sides[1], verboseWriter);
                                 if(matcher.group(2) == null) { //no arguments, so it's a variable definition
                                     setVariable(symName, readOnly, expr, verboseWriter);
-                                    verboseWriter.println(symName + " is now " + getVariable(symName));
+                                    verboseWriter.println(getMessage(Message.VAR_ASSIGNED, symName, Double.toString(getVariable(symName))));
                                 }else { //argument names are specified, so it's a function definition
                                     setFunction(symName, expr, readOnly, matcher.group(2).replace(" ", "").split(","));
-                                    verboseWriter.println(matcher.group(0) + " is now defined as " + expr.toString());
+                                    verboseWriter.println(getMessage(Message.FUNC_ASSIGNED, matcher.group(0), expr.toString()));
                                 }
                             }
                         }else {
-                            errorWriter.println("Only one = operator per command is allowed.");
+                            errorWriter.println(getMessage(Message.ONLY_ONE_EQUALITY));
                             if(stopOnError) return Status.ERROR;
                         }
                     }else //otherwise, it's parsed as an expression

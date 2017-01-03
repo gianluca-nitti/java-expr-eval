@@ -216,7 +216,7 @@ public abstract class Expression{
       }else if(c == ' ') { //spaces are allowed and ignored
         i++;
       }else{
-        throw new UnknownCharException(expr, i);
+        throw new UnknownCharException(c);
       }
       if(itemToAdd != null) {
         subExpressions.addItem(negate ? new NegatedExpression(itemToAdd) : itemToAdd);

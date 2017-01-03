@@ -15,8 +15,8 @@ public class UnexpectedTokenException extends ExpressionException{
    * if <code>false</code>, it will indicate that a sub-expression was expected but an operator was found. This parameter is ignored if <code>operatorExpected == true</code>.
    */
   public UnexpectedTokenException(boolean operatorExpected, boolean endOfExpression){
-    super(operatorExpected ? "An operator was expected, but an expression was found" : "A sub-expression was expected, but " +
-            (endOfExpression ? "the end of the expression was reached" : "an operator was found"));
+    super(LocalizationHelper.getMessage(operatorExpected ? LocalizationHelper.Message.OPERATOR_EXPECTED :
+            (endOfExpression ? LocalizationHelper.Message.EXPR_END_REACHED : LocalizationHelper.Message.OPERATOR_FOUND)));
   }
 
 }
