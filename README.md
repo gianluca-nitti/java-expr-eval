@@ -9,6 +9,7 @@ Simple Java library and command line tool to evaluate math expressions.
 * Support for functions, that can be built-in (like basic trigonometry, logarithms, square root) or user-defined in a context as expression with parameters.
 * Functions support overloading (e.g. you can define two different functions with the same name but different number of arguments in the same context).
 * Functions and variables can be defined as readonly to prevent them to be modified in the context.
+* Support for localization: UI messages emitted by the library (step logging, errors, etc.) can be customized (see below).
 
 # CLI tool features
 * Supports reading input from command line arguments, files and stdin, and writing output to stdout or files (see -h or --help for details).
@@ -17,6 +18,16 @@ Simple Java library and command line tool to evaluate math expressions.
 #Documentation
 Full javadoc is available [here](https://jitpack.io/com/github/gianluca-nitti/java-expr-eval/-SNAPSHOT/javadoc/overview-summary.html).
 This is always updated from latest commit. See releases page for javadoc of specific versions.
+## Using the localization helper
+Since version 3.1 the strings returned by exceptions `toString()`s, log entries format, `InteractiveExpressionContext` UI messages, etc can be customized, for example for localization purposes.
+To do this, you simply need to call the `setMessage(LocalizationHelper.Message, String)` method for each message you want to customize, before you call the methods that will emit those messages.
+The messages are represented by the entries of the [LocalizationHelper.Message enumeration](https://jitpack.io/com/github/gianluca-nitti/java-expr-eval/-SNAPSHOT/javadoc/com/github/gianlucanitti/javaexpreval/LocalizationHelper.Message.html).
+Example:
+```
+LocalizationHelper.setMessage(LocalizationHelper.Message.REWRITE_STEP, "The \"%s\" expression can also be written as \"%s\".");
+//The following line will print to stdout 'The "3+2" expression can also be written as "(3.0+2.0)".' instead of the default '3+2 can be rewritten as (3.0+2.0)'.
+Expression.parse("3+2", new OutputStreamWriter(System.out));
+```
 
 #Using as command line tool
 To start in interactive mode, just run without arguments (you may need to adjust the JAR filename according to the version):
@@ -91,7 +102,7 @@ and this dependency (adjust the version if needed, according to the releases pag
 <dependency>
     <groupId>com.github.gianluca-nitti</groupId>
     <artifactId>java-expr-eval</artifactId>
-    <version>v3.0</version>
+    <version>v3.1</version>
 </dependency>
 ```
 See the [jitpack page](https://jitpack.io/#gianluca-nitti/java-expr-eval/) for instructions for other build systems (gradle, sbt or leiningen).
