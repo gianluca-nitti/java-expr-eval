@@ -1,6 +1,9 @@
 package com.github.gianlucanitti.javaexpreval;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 /**
@@ -38,10 +41,10 @@ public class BuiltInFunctions {
          * @param args The values to pass to the function.
          * @param context The context this function must be evaluated into (not used here).
          * @param logWriter The {@link java.io.Writer} to write evaluation steps onto (not used here).
-         * @return The value returned from {@link #eval(double[])} with the same <code>args</code>.
+         * @return The value returned from {@link #eval(BigDecimal[])} with the same <code>args</code>.
          */
         @Override
-        protected double evalFunction(double[] args, ExpressionContext context, PrintWriter logWriter){
+        protected BigDecimal evalFunction(BigDecimal[] args, ExpressionContext context, PrintWriter logWriter){
             return eval(args);
         }
 
@@ -50,7 +53,7 @@ public class BuiltInFunctions {
          * @param args The values to pass to the function.
          * @return The result of the evaluation.
          */
-        protected abstract double eval(double[] args);
+        protected /*abstract*/ BigDecimal eval(BigDecimal[] args){throw new NotImplementedException();} //TODO
     }
 
     private static class SinFunction extends BuiltInFunction{
@@ -58,10 +61,10 @@ public class BuiltInFunctions {
             super("sin", 1);
         }
 
-        @Override
-        protected double eval(double[] args) {
+        /*@Override
+        protected BigDecimal eval(BigDecimal[] args) {
             return Math.sin(args[0]);
-        }
+        }*/
     }
 
     private static class CosFunction extends BuiltInFunction{
@@ -69,10 +72,10 @@ public class BuiltInFunctions {
             super("cos", 1);
         }
 
-        @Override
-        protected double eval(double[] args) {
+        /*@Override
+        protected BigDecimal eval(BigDecimal[] args) {
             return Math.cos(args[0]);
-        }
+        }*/
     }
 
     private static class TanFunction extends BuiltInFunction{
@@ -80,10 +83,10 @@ public class BuiltInFunctions {
             super("tan", 1);
         }
 
-        @Override
-        protected double eval(double[] args) {
+        /*@Override
+        protected BigDecimal eval(BigDecimal[] args) {
             return Math.tan(args[0]);
-        }
+        }*/
     }
 
     private static class LogFunction extends BuiltInFunction{
@@ -91,10 +94,10 @@ public class BuiltInFunctions {
             super("log", 1);
         }
 
-        @Override
-        protected double eval(double[] args) {
+        /*@Override
+        protected BigDecimal eval(BigDecimal[] args) {
             return Math.log(args[0]);
-        }
+        }*/
     }
 
     private static class SqrtFunction extends BuiltInFunction{
@@ -102,10 +105,10 @@ public class BuiltInFunctions {
             super("sqrt", 1);
         }
 
-        @Override
-        protected double eval(double[] args) {
+        /*@Override
+        protected BigDecimal eval(BigDecimal[] args) {
             return Math.sqrt(args[0]);
-        }
+        }*/
     }
 
     private static class AbsFunction extends BuiltInFunction{
@@ -113,10 +116,10 @@ public class BuiltInFunctions {
             super("abs", 1);
         }
 
-        @Override
-        protected double eval(double[] args) {
+        /*@Override
+        protected BigDecimal eval(BigDecimal[] args) {
             return Math.abs(args[0]);
-        }
+        }*/
     }
 
     /**

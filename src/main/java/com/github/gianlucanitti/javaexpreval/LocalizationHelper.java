@@ -51,7 +51,7 @@ public class LocalizationHelper {
         /**
          * Default value: "%s is a reserved word and can't be used as symbol name name."
          */
-        RESERVED_WORD("%s is a reserved word and can't be used as symbol name name."),
+        RESERVED_WORD("%s is a reserved word and can't be used as symbol name."),
         /**
          * Default value: "%s is now %s"
          */

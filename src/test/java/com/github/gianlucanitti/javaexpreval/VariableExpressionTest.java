@@ -2,6 +2,8 @@ package com.github.gianlucanitti.javaexpreval;
 
 import junit.framework.TestCase;
 
+import java.math.BigDecimal;
+
 public class VariableExpressionTest extends TestCase{
 
     public void testEval(){
@@ -9,7 +11,7 @@ public class VariableExpressionTest extends TestCase{
             VariableExpression exp = new VariableExpression("someVar");
             ExpressionContext c = new ExpressionContext();
             c.setVariable("someVar", 6.2);
-            assertEquals(6.2, exp.eval(c));
+            assertEquals(new BigDecimal(6.2), exp.eval(c));
         }catch(ExpressionException ex){
             fail(ex.getMessage());
         }

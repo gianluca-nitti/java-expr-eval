@@ -1,6 +1,7 @@
 package com.github.gianlucanitti.javaexpreval;
 
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 
 /**
  * An expression representing a function (built-in, like sqrt, log,... or user-defined in the context).
@@ -32,8 +33,8 @@ public class FunctionExpression extends NamedSymbolExpression{
      * {@inheritDoc}
      */
     @Override
-    protected double evalExpr(ExpressionContext context, PrintWriter logWriter) throws UndefinedException {
-        double[] evaluatedArgs = new double[args.length];
+    protected BigDecimal evalExpr(ExpressionContext context, PrintWriter logWriter) throws UndefinedException {
+        BigDecimal[] evaluatedArgs = new BigDecimal[args.length];
         for(int i = 0; i < args.length; i++)
             evaluatedArgs[i] = args[i].eval(context, logWriter);
         return context.getFunction(getName(), args.length).eval(evaluatedArgs, context, logWriter);

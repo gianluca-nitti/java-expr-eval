@@ -1,5 +1,8 @@
 package com.github.gianlucanitti.javaexpreval;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.io.PrintWriter;
 
@@ -50,17 +53,17 @@ public final class BinaryOpExpression extends Expression{
    * {@inheritDoc}
    */
   @Override
-  protected double evalExpr(ExpressionContext context, PrintWriter logWriter) throws UndefinedException{
-    double a = left.eval(context, logWriter);
-    double b = right.eval(context, logWriter);
-    double result = 0;
+  protected BigDecimal evalExpr(ExpressionContext context, PrintWriter logWriter) throws UndefinedException{
+    BigDecimal a = left.eval(context, logWriter);
+    BigDecimal b = right.eval(context, logWriter);
+    BigDecimal result = null;
     switch(op){
-      case '+': result = a + b; break;
-      case '-': result = a - b; break;
-      case '*': result = a * b; break;
-      case '/': result = a / b; break;
+      case '+': result = a.add(b); break;
+      case '-': result = a.subtract(b); break;
+      case '*': result = a.multiply(b); break;
+      case '/': result = a.divide(b); break;
       //case '%': result = a % b; break;
-      case '^': result = Math.pow(a, b); break;
+      case '^': throw new NotImplementedException(); //break; //TODO
     }
     return result;
   }

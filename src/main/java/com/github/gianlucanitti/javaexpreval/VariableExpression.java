@@ -1,6 +1,7 @@
 package com.github.gianlucanitti.javaexpreval;
 
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 
 /**
  * An expression representing a variable.
@@ -39,7 +40,7 @@ public class VariableExpression extends NamedSymbolExpression{
      * {@inheritDoc}
      */
     @Override
-    protected double evalExpr(ExpressionContext context, PrintWriter logWriter) throws UndefinedException{
+    protected BigDecimal evalExpr(ExpressionContext context, PrintWriter logWriter) throws UndefinedException{
         return binding == null ? context.getVariable(getName()) : binding.eval();
     }
 

@@ -1,6 +1,7 @@
 package com.github.gianlucanitti.javaexpreval;
 
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 /**
@@ -54,7 +55,7 @@ public class CustomFunction extends Function {
      * @throws IllegalArgumentException if the specified <code>args</code> and the number of argument names passed to the constructor have different lengths.
      */
     @Override
-    protected double evalFunction(double[] args, ExpressionContext context, PrintWriter logWriter) throws UndefinedException{
+    protected BigDecimal evalFunction(BigDecimal[] args, ExpressionContext context, PrintWriter logWriter) throws UndefinedException{
         expr.bindVariables(argNames, args);
         return expr.eval(context, logWriter);
     }

@@ -231,7 +231,7 @@ public class InteractiveExpressionContext extends ExpressionContext {
                                 Expression expr = Expression.parse(sides[1], verboseWriter);
                                 if(matcher.group(2) == null) { //no arguments, so it's a variable definition
                                     setVariable(symName, readOnly, expr, verboseWriter);
-                                    verboseWriter.println(getMessage(Message.VAR_ASSIGNED, symName, Double.toString(getVariable(symName))));
+                                    verboseWriter.println(getMessage(Message.VAR_ASSIGNED, symName, getVariable(symName).toString()));
                                 }else { //argument names are specified, so it's a function definition
                                     setFunction(symName, expr, readOnly, matcher.group(2).replace(" ", "").split(","));
                                     verboseWriter.println(getMessage(Message.FUNC_ASSIGNED, matcher.group(0), expr.toString()));

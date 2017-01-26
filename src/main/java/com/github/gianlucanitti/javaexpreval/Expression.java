@@ -2,6 +2,7 @@ package com.github.gianlucanitti.javaexpreval;
 
 import java.io.Writer;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import static com.github.gianlucanitti.javaexpreval.LocalizationHelper.*;
 
@@ -34,17 +35,17 @@ public abstract class Expression{
    * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (function or variable) not defined in the context.
    * @return The computed value of this expression.
    */
-  protected abstract double evalExpr(ExpressionContext context, PrintWriter logWriter) throws UndefinedException;
+  protected abstract BigDecimal evalExpr(ExpressionContext context, PrintWriter logWriter) throws UndefinedException;
 
   /**
    * Returns a string representing the log entry corresponding to the evaluation of this expression.
-   * Can be overridden by expression that need custom log messages (see for example {@link ConstExpression#getEvalMsg(double)});
+   * Can be overridden by expression that need custom log messages (see for example {@link ConstExpression#getEvalMsg(BigDecimal)});
    * @param val the value of the expression.
    * This method doesn't obtain it by calling {@link #eval()} to avoid computing the value twice (one time to get the result and the other for logging).
    * @return A string built by concatenating the string representation of the expression, the " evaluates to " literal, and the value (<code>val</code> parameter).
    */
-  public String getEvalMsg(double val){
-    return getMessage(Message.EVAL_STEP, toString(), Double.toString(val)) + System.getProperty("line.separator");
+  public String getEvalMsg(BigDecimal val){
+    return getMessage(Message.EVAL_STEP, toString(), val.toString()) + System.getProperty("line.separator");
   }
 
   /**
@@ -53,7 +54,7 @@ public abstract class Expression{
    * @param values An array containing the values to bind the variables to.
    * @throws IllegalArgumentException if <code>varNames</code> and <code>values</code> have different lengths.
    */
-  public void bindVariables(String[] varNames, double[] values){
+  public void bindVariables(String[] varNames, BigDecimal[] values){
     if(varNames.length != values.length)
       throw new IllegalArgumentException();
     if(this instanceof VariableExpression) {
@@ -73,8 +74,8 @@ public abstract class Expression{
    * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (function or variable) not defined in the context.
    * @return The computed value of this expression.
    */
-  protected final double eval(ExpressionContext context, PrintWriter logWriter) throws UndefinedException{
-    double val = evalExpr(context, logWriter);
+  protected final BigDecimal eval(ExpressionContext context, PrintWriter logWriter) throws UndefinedException{
+    BigDecimal val = evalExpr(context, logWriter);
     logWriter.print(getEvalMsg(val));
     logWriter.flush();
     try {
@@ -92,7 +93,7 @@ public abstract class Expression{
    * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (function or variable) not defined in the context.
    * @return The computed value of this expression.
    */
-  public final double eval(ExpressionContext context, Writer logWriter) throws UndefinedException{
+  public final BigDecimal eval(ExpressionContext context, Writer logWriter) throws UndefinedException{
     return eval(context, new PrintWriter(logWriter));
   }
 
@@ -102,7 +103,7 @@ public abstract class Expression{
    * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (function or variable) not defined in the context.
    * @return The computed value of this expression.
    */
-  public final double eval(ExpressionContext context) throws UndefinedException{
+  public final BigDecimal eval(ExpressionContext context) throws UndefinedException{
     return eval(context, NullOutputStream.getWriter());
   }
 
@@ -112,7 +113,7 @@ public abstract class Expression{
    * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (function or variable) not defined in the context.
    * @return The computed value of this expression.
    */
-  public final double eval(Writer logWriter) throws UndefinedException{
+  public final BigDecimal eval(Writer logWriter) throws UndefinedException{
     return eval(new ExpressionContext(), logWriter);
   }
 
@@ -121,7 +122,7 @@ public abstract class Expression{
    * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (function or variable) not defined in the context.
    * @return The computed value of this expression.
    */
-  public final double eval() throws UndefinedException{
+  public final BigDecimal eval() throws UndefinedException{
     return eval(new ExpressionContext());
   }
 
@@ -177,7 +178,7 @@ public abstract class Expression{
             break;
           c = expr.charAt(i);
         }
-        itemToAdd = new ConstExpression(Double.parseDouble(number));
+        itemToAdd = new ConstExpression(new BigDecimal(number));
       }else if (NamedSymbolExpression.isValidSymbolFirstChar(c)){
         String symName = "";
         while(NamedSymbolExpression.isValidSymbolChar(c)){

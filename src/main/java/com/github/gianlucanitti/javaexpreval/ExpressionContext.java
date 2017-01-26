@@ -1,6 +1,7 @@
 package com.github.gianlucanitti.javaexpreval;
 
 import java.io.Writer;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -13,7 +14,7 @@ public class ExpressionContext extends Observable {
      * Represents the value of a variable defined in an ExpressionContext.
      */
     public static class VariableValue{
-        private double value;
+        private BigDecimal value;
         private boolean readOnly;
 
         /**
@@ -21,15 +22,24 @@ public class ExpressionContext extends Observable {
          * @param value The value of the variable.
          * @param readOnly Whether the variable must be read-only or not.
          */
-        public VariableValue(double value, boolean readOnly) {
+        public VariableValue(BigDecimal value, boolean readOnly) {
             this.value = value;
             this.readOnly = readOnly;
         }
 
         /**
+         * Initializes a new instance of VariableValue.
+         * @param value The value of the variable; will be converted to a {@link BigDecimal}.
+         * @param readOnly Whether the variable must be read-only or not.
+         */
+        public VariableValue(double value, boolean readOnly) {
+            this(new BigDecimal(value), readOnly);
+        }
+
+        /**
          * @return The value of this variable, as specified as 1st argument to the constructor.
          */
-        public double getValue() {
+        public BigDecimal getValue() {
             return value;
         }
 
@@ -90,14 +100,14 @@ public class ExpressionContext extends Observable {
      * @return The value of the specified variable, if defined in this context.
      * @throws UndefinedException if the specified variable is not defined in this context.
      */
-    public double getVariable(String varName) throws UndefinedException{
+    public BigDecimal getVariable(String varName) throws UndefinedException{
         if(!variables.containsKey(varName))
             throw new UndefinedException(varName);
         return variables.get(varName).value;
     }
 
     /**
-     * Binds the specified variable name to the specified value, flagging the variable as read-only of specified.
+     * Binds the specified variable name to the specified value, flagging the variable as read-only if specified.
      * If a variable with the same name is already defined, it's value is replaced.
      * @param varName The name of the variable to add/edit.
      * @param value The value to assign to the variable.
@@ -105,7 +115,7 @@ public class ExpressionContext extends Observable {
      * @throws InvalidSymbolNameException if <code>varName</code> isn't a valid symbol name.
      * @throws ReadonlyException if the variable can't be set because it was previously defined as read-only.
      */
-    public void setVariable(String varName, boolean readOnly, double value) throws InvalidSymbolNameException, ReadonlyException{
+    public void setVariable(String varName, boolean readOnly, BigDecimal value) throws InvalidSymbolNameException, ReadonlyException{
         VariableExpression.assertValidSymbolName(varName);
         if(variables.containsKey(varName) && variables.get(varName).readOnly)
             throw new ReadonlyException(varName);
@@ -116,9 +126,34 @@ public class ExpressionContext extends Observable {
 
     /**
      * Binds the specified variable name to the specified value without flagging it as read-only (it can be redefined later).
-     * Wrapper for {@link #setVariable(String, boolean, double)} with <code>false</code> as 2nd argument.
+     * Wrapper for {@link #setVariable(String, boolean, BigDecimal)} with <code>false</code> as 2nd argument.
      * @param varName The name of the variable to add/edit.
      * @param value The value to assign to the variable.
+     * @throws InvalidSymbolNameException if <code>varName</code> isn't a valid symbol name.
+     * @throws ReadonlyException if the variable can't be set because it was previously defined as read-only.
+     */
+    public void setVariable(String varName, BigDecimal value) throws InvalidSymbolNameException, ReadonlyException{
+        setVariable(varName, false, value);
+    }
+
+    /**
+     * Binds the specified variable name to the specified value, flagging the variable as read-only if specified.
+     * If a variable with the same name is already defined, it's value is replaced.
+     * @param varName The name of the variable to add/edit.
+     * @param value The value to assign to the variable; will be converted to a {@link BigDecimal}.
+     * @param readOnly Whether this variable must be read-only or it can be redefined later.
+     * @throws InvalidSymbolNameException if <code>varName</code> isn't a valid symbol name.
+     * @throws ReadonlyException if the variable can't be set because it was previously defined as read-only.
+     */
+    public void setVariable(String varName, boolean readOnly, double value) throws InvalidSymbolNameException, ReadonlyException{
+        setVariable(varName, readOnly, new BigDecimal(value));
+    }
+
+    /**
+     * Binds the specified variable name to the specified value without flagging it as read-only (it can be redefined later).
+     * Wrapper for {@link #setVariable(String, boolean, BigDecimal)} with <code>false</code> as 2nd argument.
+     * @param varName The name of the variable to add/edit.
+     * @param value The value to assign to the variable; will be converted to a {@link BigDecimal}.
      * @throws InvalidSymbolNameException if <code>varName</code> isn't a valid symbol name.
      * @throws ReadonlyException if the variable can't be set because it was previously defined as read-only.
      */

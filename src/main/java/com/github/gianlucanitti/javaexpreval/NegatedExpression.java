@@ -1,6 +1,7 @@
 package com.github.gianlucanitti.javaexpreval;
 
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 
 /**
  * Represents an expression that evaluates to the opposite number of the specified sub-expression's value.
@@ -29,8 +30,8 @@ public class NegatedExpression extends Expression {
      * {@inheritDoc}
      */
     @Override
-    protected double evalExpr(ExpressionContext context, PrintWriter logWriter) throws UndefinedException {
-        return -subExpression.eval(context, logWriter);
+    protected BigDecimal evalExpr(ExpressionContext context, PrintWriter logWriter) throws UndefinedException {
+        return subExpression.eval(context, logWriter).negate();
     }
 
     /**
