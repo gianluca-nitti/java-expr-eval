@@ -58,10 +58,10 @@ public final class BinaryOpExpression extends Expression{
     BigDecimal b = right.eval(context, logWriter);
     BigDecimal result = null;
     switch(op){
-      case '+': result = a.add(b); break;
-      case '-': result = a.subtract(b); break;
-      case '*': result = a.multiply(b); break;
-      case '/': result = a.divide(b); break;
+      case '+': result = a.add(b, context.getMathContext()); break;
+      case '-': result = a.subtract(b, context.getMathContext()); break;
+      case '*': result = a.multiply(b, context.getMathContext()); break;
+      case '/': result = a.divide(b, context.getMathContext()); break;
       //case '%': result = a % b; break;
       case '^': throw new NotImplementedException(); //break; //TODO
     }

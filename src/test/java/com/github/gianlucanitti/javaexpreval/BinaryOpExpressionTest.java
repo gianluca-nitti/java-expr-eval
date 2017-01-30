@@ -3,6 +3,7 @@ package com.github.gianlucanitti.javaexpreval;
 import junit.framework.TestCase;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 
 public class BinaryOpExpressionTest extends TestCase{
 
@@ -14,8 +15,8 @@ public class BinaryOpExpressionTest extends TestCase{
       assertEquals(new BigDecimal(1.0-6.0), exp.eval());
       exp = new BinaryOpExpression(new ConstExpression(3), '*', new ConstExpression(8));
       assertEquals(new BigDecimal(3.0*8.0), exp.eval());
-      //exp = new BinaryOpExpression(new ConstExpression(14), '/', new ConstExpression(6));
-      //assertEquals(new BigDecimal(14.0/6.0), exp.eval()); //TODO
+      exp = new BinaryOpExpression(new ConstExpression(14), '/', new ConstExpression(6));
+      assertEquals(new BigDecimal(14.0/6.0, MathContext.DECIMAL64), exp.eval());
       //exp = new BinaryOpExpression(new ConstExpression(2), '^', new ConstExpression(10));
       //assertEquals(Math.pow(2.0, 10.0), exp.eval()); //TODO
     }catch(ExpressionException ex){

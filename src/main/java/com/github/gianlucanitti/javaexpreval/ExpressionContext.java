@@ -2,6 +2,7 @@ package com.github.gianlucanitti.javaexpreval;
 
 import java.io.Writer;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.*;
 
 /**
@@ -61,14 +62,39 @@ public class ExpressionContext extends Observable {
 
     private HashMap<String, VariableValue> variables;
     private HashSet<Function> functions;
+    private MathContext mc;
 
     /**
-     * Initializes an empty context.
+     * Initializes an empty context with the specified rounding settings.
+     * @param m {@link MathContext} object describing the precision and rounding method to use for calculations made while evaluating expressions in this context.
      */
-    public ExpressionContext(){
+    public ExpressionContext(MathContext m){
+        mc = m;
         variables = new HashMap<String, VariableValue>();
         functions = new HashSet<Function>();
         functions.addAll(BuiltInFunctions.getList());
+    }
+
+    /**
+     * Initializes an empty context with the default rounding settings, which are those of the {@link MathContext#DECIMAL64} field (the {@link BigDecimal}s will thus behave like <code>double</code>s).
+     */
+    public ExpressionContext(){
+        this(MathContext.DECIMAL64);
+    }
+
+    /**
+     * @return The {@link MathContext} object associated to this object, which stores the settings for the calculations done when evaluating expressions in this {@link ExpressionContext}.
+     */
+    public MathContext getMathContext(){
+        return mc;
+    }
+
+    /**
+     * Changes the {@link MathContext} object associated to this object, which the specified one.
+     * @param m The new {@link MathContext} object which will be used when doing calculations to evaluate expressions in this context.
+     */
+    public void setMathContext(MathContext m){
+        mc = m;
     }
 
     /**

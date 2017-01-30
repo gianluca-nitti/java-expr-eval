@@ -4,9 +4,27 @@ import junit.framework.TestCase;
 
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.*;
 
 public class ExpressionContextTest extends TestCase{
+
+    public void testMathContext() throws InvalidOperatorException, UndefinedException {
+        ExpressionContext c = new ExpressionContext(MathContext.DECIMAL32);
+        Expression exp1 = new BinaryOpExpression(new ConstExpression(new BigDecimal(3)), '/', new ConstExpression(new BigDecimal(4)));
+        Expression exp2 = new BinaryOpExpression(new ConstExpression(new BigDecimal("123456789987654321123456789987654321")), '*', new ConstExpression(new BigDecimal("987654321123456789")));
+        assertEquals(new BigDecimal(0.75, MathContext.DECIMAL32), exp1.eval(c));
+        assertEquals(new BigDecimal(1.219326e+53, MathContext.DECIMAL32), exp2.eval(c));
+        c.setMathContext(MathContext.DECIMAL64);
+        assertEquals(new BigDecimal(0.75, MathContext.DECIMAL64), exp1.eval(c));
+        assertEquals(new BigDecimal(1.219326321033379e+53, MathContext.DECIMAL64), exp2.eval(c));
+        c.setMathContext(MathContext.DECIMAL128);
+        assertEquals(new BigDecimal(0.75, MathContext.DECIMAL128), exp1.eval(c));
+        assertEquals(new BigDecimal("1.219326321033379057840268252159732e+53", MathContext.DECIMAL128), exp2.eval(c));
+        c.setMathContext(MathContext.UNLIMITED);
+        assertEquals(new BigDecimal(0.75, MathContext.UNLIMITED), exp1.eval(c));
+        assertEquals(new BigDecimal("121932632103337905784026825215973174662094193112635269", MathContext.UNLIMITED), exp2.eval(c));
+    }
 
     public void testGetVariables() throws ExpressionException{
         ExpressionContext c = new ExpressionContext();

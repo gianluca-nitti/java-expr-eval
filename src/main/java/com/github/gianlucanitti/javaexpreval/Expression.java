@@ -3,6 +3,7 @@ package com.github.gianlucanitti.javaexpreval;
 import java.io.Writer;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import static com.github.gianlucanitti.javaexpreval.LocalizationHelper.*;
 
@@ -109,6 +110,8 @@ public abstract class Expression{
 
   /**
    * Evaluates this expression in an empty context and logs the steps done to the specified {@link Writer}.
+   * The empty context will be build with the default {@link ExpressionContext#ExpressionContext()} constructor, so the calculations will be done according to the {@link MathContext#DECIMAL64} settings
+   * (in other words, the {@link BigDecimal}s will behave like standard 64-bit <code>double</code>s).
    * @param logWriter A {@link Writer} to write the evaluation steps to.
    * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (function or variable) not defined in the context.
    * @return The computed value of this expression.
@@ -119,6 +122,8 @@ public abstract class Expression{
 
   /**
    * Evaluates this expression in an empty context without logging the steps done.
+   * The empty context will be build with the default {@link ExpressionContext#ExpressionContext()} constructor, so the calculations will be done according to the {@link MathContext#DECIMAL64} settings
+   * (in other words, the {@link BigDecimal}s will behave like standard 64-bit <code>double</code>s).
    * @throws UndefinedException if the expression can't be evaluated because it contains a symbol (function or variable) not defined in the context.
    * @return The computed value of this expression.
    */
