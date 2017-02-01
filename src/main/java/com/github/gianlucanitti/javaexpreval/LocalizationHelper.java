@@ -40,6 +40,7 @@ public class LocalizationHelper {
                 + nl + "A function can be deleted with an empty assignment; the number of arguments must be specified, e.g. \"sum(2)=\" to delete the function \"sum\" defined on two arguments."
                 + nl + "An assignment (of variable or function) can be prepended with the \"readonly\" word to prevent it to be modified or deleted, e.g. \"readonly x=1\", \"readonly square(a)=a^2\"."
                 + nl + "The commands are: context (prints all the defined variables and functions), clear (deletes all the non-readonly variables and functions), help (shows this message) and exit (stops reading input)."),
+        //TODO: explain usage of "precision" command.
         /**
          * Default value: "Incorrect syntax. To delete a function, the number of arguments must be specified (e.g. \"fun(2)=\" to delete \"fun(x, y)\")."
          */
@@ -119,7 +120,23 @@ public class LocalizationHelper {
         /**
          * Default value: "Unrecognized character %s."
          */
-        UNKNOWN_CHAR("Unrecognized character %s.");
+        UNKNOWN_CHAR("Unrecognized character %s."),
+        /**
+         * Default value: "Invalid syntax for \"%1$s\" command. Usage:" + nl + "%1$s preset 32bit|64bit|128bit|unlimited" + nl + "%1$s custom &lt;scale&gt; CEILING|DOWN|FLOOR|HALF_DOWN|HALF_EVEN|HALF_UP|UNNECESSARY|UP" + nl + "See help for more information."
+         */
+        INVALID_PRECISION_SYNTAX("Invalid syntax for \"%1$s\" command. Usage:" + nl + "%1$s preset 32bit|64bit|128bit|unlimited" + nl + "%1$s custom <scale> CEILING|DOWN|FLOOR|HALF_DOWN|HALF_EVEN|HALF_UP|UNNECESSARY|UP" + nl + "See help for more information."),
+        /**
+         * Default value: "Invalid precision preset. Supported presets are 32bit, 64bit, 128bit, unlimited. See help for more information."
+         */
+        INVALID_PRECISION_PRESET("Invalid precision preset. Supported presets are 32bit, 64bit, 128bit, unlimited. See help for more information."),
+        /**
+         * Default value: "Scale must be an integer."
+         */
+        INVALID_PRECISION_SCALE("Scale must be an integer."),
+        /**
+         * Default value: "Invalid rounding mode. Supported rounding modes are CEILING, DOWN, FLOOR, HALF_DOWN, HALF_EVEN, HALF_UP, UNNECESSARY, UP. See help for more information."
+         */
+        INVALID_PRECISION_ROUNDING("Invalid rounding mode. Supported rounding modes are CEILING, DOWN, FLOOR, HALF_DOWN, HALF_EVEN, HALF_UP, UNNECESSARY, UP. See help for more information.");
 
         private String msg;
 

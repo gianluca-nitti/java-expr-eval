@@ -1,6 +1,8 @@
 package com.github.gianlucanitti.javaexpreval;
 
 import java.io.*;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,11 +16,11 @@ public class InteractiveExpressionContext extends ExpressionContext {
 
     /**
      * Enumeration of commands that the user can give to the context through the input {@link Reader}.
-     * @see #setCommands(String, String, String, String)
+     * @see #setCommands(String, String, String, String, String)
      * @see #setDefaultCommands()
      */
     private enum Command{
-        CONTEXT, CLEAR, HELP, EXIT
+        CONTEXT, CLEAR, HELP, EXIT, PRECISION
     }
 
     /**
@@ -51,6 +53,8 @@ public class InteractiveExpressionContext extends ExpressionContext {
     private boolean helpVerbose;
     private boolean stopOnError;
 
+    private static HashMap<String, MathContext> precisionPresets;
+
     /**
      * Initializes an InteractiveExpressionContext that takes input from the specified {@link Reader} and writes output to the specified {@link Writer}s.
      * @param input The input {@link Reader}.
@@ -67,6 +71,13 @@ public class InteractiveExpressionContext extends ExpressionContext {
         setDefaultCommands();
         setPrompt("");
         helpVerbose = false;
+        if(precisionPresets == null){
+            precisionPresets = new HashMap<String, MathContext>();
+            precisionPresets.put("32bit", MathContext.DECIMAL32);
+            precisionPresets.put("64bit", MathContext.DECIMAL64);
+            precisionPresets.put("128bit", MathContext.DECIMAL128);
+            precisionPresets.put("unlimited", MathContext.UNLIMITED);
+        }
     }
 
     /**
@@ -84,13 +95,15 @@ public class InteractiveExpressionContext extends ExpressionContext {
      * @param clear The string identifying the command to un-define all the variables.
      * @param help The string identifying the help command.
      * @param exit The string identifying the exit command.
+     * @param precision The string identifying the command to change
      */
-    public void setCommands(String context, String clear, String help, String exit){
+    public void setCommands(String context, String clear, String help, String exit, String precision){
         commands = new HashMap<String, Command>();
         commands.put(context, Command.CONTEXT);
         commands.put(clear, Command.CLEAR);
         commands.put(help, Command.HELP);
         commands.put(exit, Command.EXIT);
+        commands.put(precision, Command.PRECISION);
     }
 
     /**
@@ -98,7 +111,7 @@ public class InteractiveExpressionContext extends ExpressionContext {
      * Equivalent to setCommands("set", "delete", "clear").
      */
     public void setDefaultCommands(){
-        setCommands("context", "clear", "help", "exit");
+        setCommands("context", "clear", "help", "exit", "precision");
     }
 
     /**
@@ -174,6 +187,24 @@ public class InteractiveExpressionContext extends ExpressionContext {
         return inputReader.readLine();
     }
 
+    private void setPrecision(String[] cmdParts) {
+        if (cmdParts.length == 3 && cmdParts[1].equals("preset")){
+            if (precisionPresets.containsKey(cmdParts[2]))
+                setMathContext(precisionPresets.get(cmdParts[2]));
+            else
+                errorWriter.println(getMessage(Message.INVALID_PRECISION_PRESET));
+        }else if(cmdParts.length == 4 && cmdParts[1].equals("custom")){
+            try {
+                setMathContext(new MathContext(Integer.parseInt(cmdParts[2]), RoundingMode.valueOf(cmdParts[3].toUpperCase())));
+            }catch(NumberFormatException e){
+                errorWriter.println(getMessage(Message.INVALID_PRECISION_SCALE));
+            }catch(IllegalArgumentException e){
+                errorWriter.println(getMessage(Message.INVALID_PRECISION_ROUNDING));
+            }
+        }else
+            errorWriter.println(getMessage(Message.INVALID_PRECISION_SYNTAX, cmdParts[0]));
+    }
+
     /**
      * Reads commands from the input {@link Reader}, if any, and executes them.
      * It then writes their output, if any, to the output {@link Writer}s.
@@ -184,9 +215,11 @@ public class InteractiveExpressionContext extends ExpressionContext {
     public Status update() throws IOException{
         String command;
         while((command = getLine()) != null){
+            String[] cmdParts = command.split(" ");
+            String cmd = cmdParts.length != 0 ? cmdParts[0] : command;
             try {
-                if(commands.containsKey(command))
-                    switch (commands.get(command)) {
+                if(commands.containsKey(cmd))
+                    switch (commands.get(cmd)) {
                         case CONTEXT:
                             outputWriter.println(toString());
                             break;
@@ -197,6 +230,9 @@ public class InteractiveExpressionContext extends ExpressionContext {
                         case HELP:
                             PrintWriter helpWriter = helpVerbose ? verboseWriter : outputWriter;
                             helpWriter.println(getMessage(Message.INTERACTIVE_HELP));
+                            break;
+                        case PRECISION:
+                            setPrecision(cmdParts);
                             break;
                         case EXIT:
                             return Status.EXIT;
