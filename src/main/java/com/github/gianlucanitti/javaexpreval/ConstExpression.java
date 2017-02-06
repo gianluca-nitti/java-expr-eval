@@ -2,6 +2,7 @@ package com.github.gianlucanitti.javaexpreval;
 
 import java.io.PrintWriter;
 import java.math.BigDecimal;
+import java.math.MathContext;
 
 /**
  * An expression representing a constant value.
@@ -49,7 +50,7 @@ public final class ConstExpression extends Expression{
    */
   @Override
   protected BigDecimal evalExpr(ExpressionContext context, PrintWriter logWriter) throws UndefinedException{
-    return value;
+    return value.round(context.getMathContext());
   }
 
   /**

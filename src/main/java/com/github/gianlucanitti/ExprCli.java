@@ -110,6 +110,7 @@ public class ExprCli {
                 out.close();
             }
         }catch(Exception ex){
+            ex.printStackTrace();
             exitCode = 1;
         }
         System.exit(exitCode);

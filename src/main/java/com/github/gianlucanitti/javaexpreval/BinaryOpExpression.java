@@ -1,6 +1,6 @@
 package com.github.gianlucanitti.javaexpreval;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import io.github.miraclefoxx.math.BigDecimalMath;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -63,7 +63,7 @@ public final class BinaryOpExpression extends Expression{
       case '*': result = a.multiply(b, context.getMathContext()); break;
       case '/': result = a.divide(b, context.getMathContext()); break;
       //case '%': result = a % b; break;
-      case '^': throw new NotImplementedException(); //break; //TODO
+      case '^': result = BigDecimalMath.pow(a, b); //break;
     }
     return result;
   }
